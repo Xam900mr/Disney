@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "DisneyApp",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
