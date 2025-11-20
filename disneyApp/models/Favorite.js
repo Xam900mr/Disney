@@ -8,4 +8,4 @@ var FavoriteSchema = new Schema({
 
 });
 
-module.exports = mongoose.model('Favorite', FavoriteSchema);
+module.exports = mongoose.model('Favorite', FavoriteSchema, 'Disney');

@@ -39,11 +39,14 @@ function tokenVerify(req, res, next) {
 router.get('/', tokenVerify,
   function(req, res, next) {
     debug("Get users listing");
-    User.find().sort("-creationdate").exec(function(err, users) {
-      if (err) res.status(500).send(err); 
-      else res.status(200).json(users);
-    });
-});
+    User.find().sort("-creationdate")
+      .then(function(users) {
+        return res.status(200).json(users);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
+ });
 
 //Get user by ID
 router.get('/:id', tokenVerify,

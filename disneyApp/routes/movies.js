@@ -4,10 +4,13 @@ const Movie = require('../models/Movie');
 
 // Get all movies
 router.get('/', function(req, res, next) {
-  Movie.find().exec(function(err, movies) {
-    if (err) return res.status(500).send(err);
-    return res.status(200).json(movies);
-  });
+  Movie.find()
+    .then(function(movies) {
+      return res.status(200).json(movies);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Get movie by id

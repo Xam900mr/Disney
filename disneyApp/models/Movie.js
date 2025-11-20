@@ -21,4 +21,4 @@ var MovieSchema = new Schema({
     imdbVotes: Number
 });
 
-module.exports = mongoose.model('Movie', MovieSchema);
+module.exports = mongoose.model('Movie', MovieSchema, 'Disney');

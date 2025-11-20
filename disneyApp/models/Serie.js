@@ -22,4 +22,4 @@ var SerieSchema = new Schema({
     imdbVotes: Number
 });
 
-module.exports = mongoose.model('Serie', SerieSchema);
+module.exports = mongoose.model('Serie', SerieSchema, 'Disney');

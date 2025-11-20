@@ -4,10 +4,13 @@ const Serie = require('../models/Serie');
 
 // Get all series
 router.get('/', function(req, res, next) {
-  Serie.find().exec(function(err, series) {
-    if (err) return res.status(500).send(err);
-    return res.status(200).json(series);
-  });
+  Serie.find()
+    .then(function(series) {
+      return res.status(200).json(series);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Get serie by id

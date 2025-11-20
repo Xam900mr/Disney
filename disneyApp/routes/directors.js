@@ -4,10 +4,13 @@ const Director = require('../models/Director');
 
 // Get all directors
 router.get('/', function(req, res, next) {
-  Director.find().exec(function(err, directors) {
-    if (err) return res.status(500).send(err);
-    return res.status(200).json(directors);
-  });
+  Director.find()
+    .then(function(directors) {
+      return res.status(200).json(directors);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Get director by id

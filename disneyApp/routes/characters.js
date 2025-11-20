@@ -4,10 +4,13 @@ const Character = require('../models/Character');
 
 // Get all characters
 router.get('/', function(req, res, next) {
-  Character.find().exec(function(err, characters) {
-    if (err) return res.status(500).send(err);
-    return res.status(200).json(characters);
-  });
+  Character.find()
+    .then(function(characters) {
+      return res.status(200).json(characters);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Get character by id

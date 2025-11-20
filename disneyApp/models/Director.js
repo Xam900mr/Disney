@@ -8,4 +8,4 @@ var DirectorSchema = new Schema({
     tvshows: [String],
 });
 
-module.exports = mongoose.model('Director', DirectorSchema);
+module.exports = mongoose.model('Director', DirectorSchema, 'Disney');
