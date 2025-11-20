@@ -1,10 +1,10 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var router = express.Router();
-var router = express.Router();
 
 // Token generation imports
 const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
@@ -14,32 +14,29 @@ var User = require('../models/User.js');
 mongoose.set("strictQuery", false);
 var db = mongoose.connection;
 
-function tokenVeryfy(req, res, next) {
-  var authHeader = req.headers['authorization'];
-  const retrievedToken = authHeader.split(' ')[1];
+const debug = console.log;
 
-  if (!retrievedToken) {
-    res.status(401).send({
-      ok: false,
-      message: 'No token provided.'
-    });
-  } else {
-    jwt.verify(retrievedToken, process.env.TOKEN_SECRET, function (err, decoded) {
-      if (err) {
-        res.status(401).send({
-          ok: false,
-          message: 'Failed to authenticate token.'
-        });
-      } else {
-        req.userId = decoded.id;
-        next();
-      }
-    });
+function tokenVerify(req, res, next) {
+  var authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(401).send({ ok: false, message: 'No token provided.' });
   }
+
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2) return res.status(401).send({ ok: false, message: 'Token format invalid.' });
+
+  const retrievedToken = parts[1];
+  jwt.verify(retrievedToken, process.env.TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(401).send({ ok: false, message: 'Failed to authenticate token.' });
+    }
+    req.userId = decoded.id;
+    next();
+  });
 }
 
 /* GET users listing. */
-router.get('/', tokenVeryfy,
+router.get('/', tokenVerify,
   function(req, res, next) {
     debug("Get users listing");
     User.find().sort("-creationdate").exec(function(err, users) {
@@ -49,30 +46,31 @@ router.get('/', tokenVeryfy,
 });
 
 //Get user by ID
-router.get('/:id', tokenVeryfy,
+router.get('/:id', tokenVerify,
   function(req, res, next) {
     debug("Get user by ID");
     User.findById(req.params.id, function(err, user) {
       if (err) res.status(500).send(err);
-      else res.status(200).json(userinfo);
+      else if (!user) res.status(404).send({ message: 'User not found.' });
+      else res.status(200).json(user);
     });
 });
 
 //Post new user
 router.post('/', function(req, res, next) {
   User.create(req.body, function(err, userinfo) {
-    if (err) res.status(500).send(err);
-    else res.status(201);
+    if (err) return res.status(500).send(err);
+    else return res.status(201).json(userinfo);
   });
 });
 
 //Delete user by ID
-router.delete('/:id', tokenVeryfy,
+router.delete('/:id', tokenVerify,
   function(req, res, next) {
     debug("Delete user by ID");
     User.findByIdAndRemove(req.params.id, function(err, user) {
       if (err) res.status(500).send(err);
-      else res.status(204);
+      else res.sendStatus(204);
     });
 });
 
@@ -93,7 +91,7 @@ router.post('/login', function(req, res, next) {
             res.status(500).send("Error al comprobar la contraseña.");
           }
           if (isMatch) {
-            next();
+            return next();
           } else {
             res.status(401).send("Contraseña incorrecta.");
           }
@@ -108,10 +106,11 @@ function(req, res, next) {
   jwt.sign({username: req.body.username}, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 },
     function(err, token) {
       if (err) {
-        res.status(500).send("Error al generar el token.");
+        return res.status(500).send("Error al generar el token.");
       } else {
-        res.status(200).send({
+        return res.status(200).send({
           message: "Autenticación exitosa.",
+          token: token
         });
       }
     }
@@ -122,9 +121,9 @@ function(req, res, next) {
 router.put("/:id", tokenVerify, 
   function (req, res, next) {
     debug("Modificación segura de un usuario con token");
-    User.findByIdAndUpdate(req.params.id, req.body, function (err, userinfo) {
-        if (err) res.status(500).send(err);
-        else res.sendStatus(200);
+    User.findByIdAndUpdate(req.params.id, req.body, { new: true }, function (err, userinfo) {
+        if (err) return res.status(500).send(err);
+        else return res.status(200).json(userinfo);
     });
 });
 
