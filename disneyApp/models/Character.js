@@ -10,7 +10,7 @@ var CharacterSchema = new Schema({
     parkAttraction: String,
     allies: [String],
     enemies: [String],
-    createdAt: date
+    createdAt: Date
 });
 
 module.exports = mongoose.model('Character', CharacterSchema);

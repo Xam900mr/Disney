@@ -4,6 +4,7 @@ var  debug = require('debug')("app:models");
 
 var bcrypt = require('bcryptjs');
 
+
 var SALT_WORK_FACTOR = 10;
 
 var UserSchema = new Schema({

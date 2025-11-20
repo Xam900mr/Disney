@@ -2,37 +2,46 @@ var express = require('express');
 var router = express.Router();
 const Movie = require('../models/Movie');
 
-// Get all movies
-router.get('/', function(req, res, next) {
-  Movie.find().exec(function(err, movies) {
-    if (err) return res.status(500).send(err);
+// GET /movies
+router.get('/', async function(req, res) {
+  try {
+    const movies = await Movie.find();
     return res.status(200).json(movies);
-  });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
-// Get movie by id
-router.get('/:id', function(req, res, next) {
-  Movie.findById(req.params.id, function(err, movie) {
-    if (err) return res.status(500).send(err);
-    if (!movie) return res.status(404).send({ message: 'Movie not found' });
+// GET /movies/:id
+router.get('/:id', async function(req, res) {
+  try {
+    const movie = await Movie.findById(req.params.id);
+    if (!movie) return res.status(404).json({ message: 'Movie not found' });
     return res.status(200).json(movie);
-  });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
-// Create new movie
-router.post('/', function(req, res, next) {
-  Movie.create(req.body, function(err, movie) {
-    if (err) return res.status(500).send(err);
+// POST /movies
+router.post('/', async function(req, res) {
+  try {
+    const movie = await Movie.create(req.body);
     return res.status(201).json(movie);
-  });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
-// Delete movie by id
-router.delete('/:id', function(req, res, next) {
-  Movie.findByIdAndRemove(req.params.id, function(err) {
-    if (err) return res.status(500).send(err);
+// DELETE /movies/:id
+router.delete('/:id', async function(req, res) {
+  try {
+    const result = await Movie.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ message: 'Movie not found' });
     return res.sendStatus(204);
-  });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
