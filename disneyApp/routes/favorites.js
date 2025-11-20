@@ -37,10 +37,13 @@ function tokenVerify(req, res, next) {
 //Agregar nuevo favorito
 router.post('/', tokenVerify,
   function(req, res, next) {
-  Favorite.create(req.body, function(err, favoriteinfo) {
-    if (err) return res.status(500).send(err);
-    else return res.status(201).json(favoriteinfo);
-  });
+  Favorite.create(req.body)
+    .then(function(favoriteinfo) {
+      return res.status(201).json(favoriteinfo);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 
@@ -48,10 +51,13 @@ router.post('/', tokenVerify,
 router.get('/:email', tokenVerify,
   function(req, res, next) {
     debug("Get favorites by email");
-    Favorite.find({ email: req.params.email }, function(err, favorites) {
-      if (err) return res.status(500).send(err);
-      else return res.status(200).json(favorites);
-    });
+    Favorite.find({ email: req.params.email })
+      .then(function(favorites) {
+        return res.status(200).json(favorites);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
 });
 
 
@@ -59,10 +65,13 @@ router.get('/:email', tokenVerify,
 router.delete('/:id', tokenVerify,
   function(req, res, next) {
     debug("Delete favorite by ID");
-    Favorite.findByIdAndRemove(req.params.id, function(err, favorite) {
-      if (err) return res.status(500).send(err);
-      else return res.sendStatus(204);
-    });
+    Favorite.findByIdAndRemove(req.params.id)
+      .then(function() {
+        return res.sendStatus(204);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
 });
 
 module.exports = router;

@@ -52,82 +52,83 @@ router.get('/', tokenVerify,
 router.get('/:id', tokenVerify,
   function(req, res, next) {
     debug("Get user by ID");
-    User.findById(req.params.id, function(err, user) {
-      if (err) res.status(500).send(err);
-      else if (!user) res.status(404).send({ message: 'User not found.' });
-      else res.status(200).json(user);
-    });
+    User.findById(req.params.id)
+      .then(function(user) {
+        if (!user) return res.status(404).send({ message: 'User not found.' });
+        return res.status(200).json(user);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
 });
 
 //Post new user
 router.post('/', function(req, res, next) {
-  User.create(req.body, function(err, userinfo) {
-    if (err) return res.status(500).send(err);
-    else return res.status(201).json(userinfo);
-  });
+  User.create(req.body)
+    .then(function(userinfo) {
+      return res.status(201).json(userinfo);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 //Delete user by ID
 router.delete('/:id', tokenVerify,
   function(req, res, next) {
     debug("Delete user by ID");
-    User.findByIdAndRemove(req.params.id, function(err, user) {
-      if (err) res.status(500).send(err);
-      else res.sendStatus(204);
-    });
+    User.findByIdAndRemove(req.params.id)
+      .then(function() {
+        return res.sendStatus(204);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
 });
 
 //Inicio de sesión
 router.post('/login', function(req, res, next) {
   debug("User login");
-  User.findOne({
-    username: req.body.username
-  }, function(err, user) {
-    if (err) {
-      res.status(500).send("Error al buscar el usuario.");
-    }
-    if (user) {
-      debug("User found, checking password");
-      user.comparePassword(req.body.password, 
-        function(err, isMatch) {
-          if (err) {
-            res.status(500).send("Error al comprobar la contraseña.");
-          }
-          if (isMatch) {
-            return next();
-          } else {
-            res.status(401).send("Contraseña incorrecta.");
-          }
+  User.findOne({ username: req.body.username })
+    .then(function(user) {
+      if (!user) return Promise.reject({ code: 404, message: 'Usuario no encontrado.' });
+      return new Promise(function(resolve, reject) {
+        user.comparePassword(req.body.password, function(err, isMatch) {
+          if (err) return reject(err);
+          if (!isMatch) return reject({ code: 401, message: 'Contraseña incorrecta.' });
+          resolve(user);
         });
-    } else {
-      res.status(404).send("Usuario no encontrado.");
-    }
-  });
-},
-function(req, res, next) {
-  debug("Generating token ... ");
-  jwt.sign({username: req.body.username}, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 },
-    function(err, token) {
-      if (err) {
-        return res.status(500).send("Error al generar el token.");
-      } else {
-        return res.status(200).send({
-          message: "Autenticación exitosa.",
-          token: token
+      });
+    })
+    .then(function(user) {
+      return new Promise(function(resolve, reject) {
+        jwt.sign({ username: req.body.username }, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 }, function(err, token) {
+          if (err) return reject(err);
+          resolve(token);
         });
-      }
-    }
-  );
-});
+      });
+    })
+    .then(function(token) {
+      return res.status(200).send({ message: 'Autenticación exitosa.', token: token });
+    })
+    .catch(function(err) {
+      if (err && err.code === 404) return res.status(404).send(err.message);
+      if (err && err.code === 401) return res.status(401).send(err.message);
+      return res.status(500).send(err && err.message ? err.message : err);
+    });
+}, function(req, res, next) {});
 
 //Actualizar usuario por ID
 router.put("/:id", tokenVerify, 
   function (req, res, next) {
     debug("Modificación segura de un usuario con token");
-    User.findByIdAndUpdate(req.params.id, req.body, { new: true }, function (err, userinfo) {
-        if (err) return res.status(500).send(err);
-        else return res.status(200).json(userinfo);
-    });
+    User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      .then(function(userinfo) {
+        return res.status(200).json(userinfo);
+      })
+      .catch(function(err) {
+        return res.status(500).send(err);
+      });
 });
 
 

@@ -15,27 +15,36 @@ router.get('/', function(req, res, next) {
 
 // Get serie by id
 router.get('/:id', function(req, res, next) {
-  Serie.findById(req.params.id, function(err, serie) {
-    if (err) return res.status(500).send(err);
-    if (!serie) return res.status(404).send({ message: 'Series not found' });
-    return res.status(200).json(serie);
-  });
+  Serie.findById(req.params.id)
+    .then(function(serie) {
+      if (!serie) return res.status(404).send({ message: 'Series not found' });
+      return res.status(200).json(serie);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Create new serie
 router.post('/', function(req, res, next) {
-  Serie.create(req.body, function(err, serie) {
-    if (err) return res.status(500).send(err);
-    return res.status(201).json(serie);
-  });
+  Serie.create(req.body)
+    .then(function(serie) {
+      return res.status(201).json(serie);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 // Delete serie by id
 router.delete('/:id', function(req, res, next) {
-  Serie.findByIdAndRemove(req.params.id, function(err) {
-    if (err) return res.status(500).send(err);
-    return res.sendStatus(204);
-  });
+  Serie.findByIdAndRemove(req.params.id)
+    .then(function() {
+      return res.sendStatus(204);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
 });
 
 module.exports = router;
