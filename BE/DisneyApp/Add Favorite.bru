@@ -1,0 +1,240 @@
+meta {
+  name: Add Favorite
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/favorites/:const mongoose = require('mongoose');
+const fs = require('fs');
+require('dotenv').config();
+
+const Movie = require('./models/Movie');
+const Character = require('./models/Character');
+
+const uri = `${process.env.MONGODB_CLUSTER_URI}/${process.env.MONGODB_DATABASE_NAME}`;
+
+mongoose.connect(uri)
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch(err => console.error(err));
+
+(async () => {
+  try {
+    const movies = await Movie.find();
+    const characters = await Character.find();
+
+    console.log("Películas:", movies.length);
+    console.log("Personajes:", characters.length);
+
+    // Mapa título → array de películas con ese título
+    const titleToMovies = new Map();
+    for (const m of movies) {
+      if (!titleToMovies.has(m.title)) titleToMovies.set(m.title, []);
+      titleToMovies.get(m.title).push(m);
+    }
+
+    // Para detectar duplicados película ↔ personaje
+    // clave: movieId + '|' + charName → lista de ocurrencias
+    const movieCharOccurrences = new Map();
+
+    // Personajes con films duplicados
+    const characterFilmsDuplicates = [];
+
+    // 1) Recorremos personajes para:
+    //   a) detectar duplicados en films dentro del propio personaje
+    //   b) registrar todas las relaciones peli-personaje (con duplicados)
+    for (const ch of characters) {
+      const films = Array.isArray(ch.films) ? ch.films : [];
+
+      // a) Duplicados de films dentro del propio personaje
+      const filmCount = new Map();
+      for (const f of films) {
+        const key = f || '';
+        filmCount.set(key, (filmCount.get(key) || 0) + 1);
+      }
+
+      for (const [filmTitle, count] of filmCount.entries()) {
+        if (filmTitle && count > 1) {
+          characterFilmsDuplicates.push({
+            charId: String(ch._id),
+            charName: ch.name,
+            filmTitle,
+            count
+          });
+        }
+      }
+
+      // b) Registrar relaciones peli-personaje (con duplicados)
+      for (const f of films) {
+        const moviesForTitle = titleToMovies.get(f);
+        if (moviesForTitle && moviesForTitle.length > 0) {
+          for (const m of moviesForTitle) {
+            const movieId = String(m._id);
+            const key = movieId + '|' + ch.name;
+            if (!movieCharOccurrences.has(key)) {
+              movieCharOccurrences.set(key, []);
+            }
+            movieCharOccurrences.get(key).push({
+              movieId,
+              movieTitle: m.title,
+              charId: String(ch._id),
+              charName: ch.name,
+              filmTitle: f
+            });
+          }
+        }
+      }
+    }
+
+    // 2) Películas con personajes duplicados (mismo personaje asociado varias veces)
+    const movieCharDuplicates = [];
+    for (const [key, occurrences] of movieCharOccurrences.entries()) {
+      if (occurrences.length > 1) {
+        // Todas las ocurrencias son de misma peli y mismo nombre de personaje
+        const sample = occurrences[0];
+        movieCharDuplicates.push({
+          movieId: sample.movieId,
+          movieTitle: sample.movieTitle,
+          charName: sample.charName,
+          times: occurrences.length,
+          charIds: [...new Set(occurrences.map(o => o.charId))].join('; '),
+          filmsMatched: [...new Set(occurrences.map(o => o.filmTitle))].join('; ')
+        });
+      }
+    }
+
+    // 3) Generar CSV SOLO de duplicados
+    // Columnas: Tipo,ElementoId,ElementoNombre,Detalle,Extra
+    let csv = "Tipo,ElementoId,ElementoNombre,Detalle,Extra\n";
+
+    // Personaje con films duplicados
+    characterFilmsDuplicates.forEach(d => {
+      csv += `Personaje-films duplicados,"${d.charId}","${d.charName}","Pelicula repetida: ${d.filmTitle}","Veces: ${d.count}"\n`;
+    });
+
+    // Película con personaje duplicado
+    movieCharDuplicates.forEach(d => {
+      csv += `Pelicula-personaje duplicado,"${d.movieId}","${d.movieTitle}","Personaje: ${d.charName}","Veces: ${d.times} | charIds: ${d.charIds} | films: ${d.filmsMatched}"\n`;
+    });
+
+    fs.writeFileSync("duplicados.csv", csv, "utf8");
+    console.log("CSV generado: duplicados.csv");
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    mongoose.connection.close();
+  }
+})();
+  body: json
+  auth: inherit
+}
+
+params:query {
+  " ch.films : [];
+  
+        // a) Duplicados de films dentro del propio personaje
+        const filmCount ":  new Map();
+        for (const f of films) {
+          const key = f || '';
+          filmCount.set(key, (filmCount.get(key) || 0) + 1);
+        }
+  
+        for (const [filmTitle, count] of filmCount.entries()) {
+          if (filmTitle 
+  " count > 1) {
+            characterFilmsDuplicates.push({
+              charId: String(ch._id),
+              charName: ch.name,
+              filmTitle,
+              count
+            });
+          }
+        }
+  
+        // b) Registrar relaciones peli-personaje (con duplicados)
+        for (const f of films) {
+          const moviesForTitle ":  titleToMovies.get(f);
+          if (moviesForTitle 
+  " moviesForTitle.length > 0) {
+            for (const m of moviesForTitle) {
+              const movieId ":  String(m._id);
+              const key = movieId + '|' + ch.name;
+              if (!movieCharOccurrences.has(key)) {
+                movieCharOccurrences.set(key, []);
+              }
+              movieCharOccurrences.get(key).push({
+                movieId,
+                movieTitle: m.title,
+                charId: String(ch._id),
+                charName: ch.name,
+                filmTitle: f
+              });
+            }
+          }
+        }
+      }
+  
+      // 2) Películas con personajes duplicados (mismo personaje asociado varias veces)
+      const movieCharDuplicates = [];
+      for (const [key, occurrences] of movieCharOccurrences.entries()) {
+        if (occurrences.length > 1) {
+          // Todas las ocurrencias son de misma peli y mismo nombre de personaje
+          const sample = occurrences[0];
+          movieCharDuplicates.push({
+            movieId: sample.movieId,
+            movieTitle: sample.movieTitle,
+            charName: sample.charName,
+            times: occurrences.length,
+            charIds: [...new Set(occurrences.map(o => o.charId))].join('; '),
+            filmsMatched: [...new Set(occurrences.map(o => o.filmTitle))].join('; ')
+          });
+        }
+      }
+  
+      // 3) Generar CSV SOLO de duplicados
+      // Columnas: Tipo,ElementoId,ElementoNombre,Detalle,Extra
+      let csv = "Tipo,ElementoId,ElementoNombre,Detalle,Extra\n";
+  
+      // Personaje con films duplicados
+      characterFilmsDuplicates.forEach(d => {
+        csv += `Personaje-films duplicados,"${d.charId}","${d.charName}","Pelicula repetida: ${d.filmTitle}","Veces: ${d.count}"\n`;
+      });
+  
+      // Película con personaje duplicado
+      movieCharDuplicates.forEach(d => {
+        csv += `Pelicula-personaje duplicado,"${d.movieId}","${d.movieTitle}","Personaje: ${d.charName}","Veces: ${d.times} | charIds: ${d.charIds} | films: ${d.filmsMatched}"\n`;
+      });
+  
+      fs.writeFileSync("duplicados.csv", csv, "utf8");
+      console.log("CSV generado: duplicados.csv");
+  
+    } catch (err) {
+      console.error(err);
+    } finally {
+      mongoose.connection.close();
+    }
+  })();
+}
+
+params:path {
+  const%20mongoose%20=%20require('mongoose');const%20fs%20=%20require('fs');require('dotenv').config();const%20Movie%20=%20require('.: 
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWY1MDBlNmQ1MzgwNTQxZTc3ZWU0MCIsInVzZXJuYW1lIjoibWlja2V5IiwiaWF0IjoxNzYzNzM2NTg1LCJleHAiOjE3NjM3NTA5ODV9.VflBdSG7lUc9b-IyTDqnSHd8stE9MElWfR9KhmThYIw
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "mickey@gmail.com",
+    "movieId": "691f37d613ef88f22b2a88de"
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

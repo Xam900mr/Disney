@@ -35,43 +35,50 @@ function tokenVerify(req, res, next) {
 }
 
 //Agregar nuevo favorito
-router.post('/', tokenVerify,
-  function(req, res, next) {
-  Favorite.create(req.body)
-    .then(function(favoriteinfo) {
-      return res.status(201).json(favoriteinfo);
-    })
-    .catch(function(err) {
-      return res.status(500).send(err);
+router.post('/', tokenVerify, async function(req, res) {
+  try {
+    const { email, movieId, seriesId } = req.body;
+
+    const newFav = await Favorite.create({
+      email,
+      movie: movieId || null,
+      series: seriesId || null
     });
+
+    res.status(201).json(newFav);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
 
 
 //Ver favoritos de un usuario por email
-router.get('/:email', tokenVerify,
-  function(req, res, next) {
-    debug("Get favorites by email");
-    Favorite.find({ email: req.params.email })
-      .then(function(favorites) {
-        return res.status(200).json(favorites);
-      })
-      .catch(function(err) {
-        return res.status(500).send(err);
-      });
+router.get('/:email', tokenVerify, async function(req, res) {
+  try {
+    const favorites = await Favorite.find({ email: req.params.email })
+      .populate('movie')   // ← carga la película completa
+      .populate('series'); // ← carga la serie completa
+    return res.status(200).json(favorites);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 
+
 //Delete favorito por ID
-router.delete('/:id', tokenVerify,
-  function(req, res, next) {
+router.delete('/:id', tokenVerify, async function(req, res) {
+  try {
     debug("Delete favorite by ID");
-    Favorite.findByIdAndRemove(req.params.id)
-      .then(function() {
-        return res.sendStatus(204);
-      })
-      .catch(function(err) {
-        return res.status(500).send(err);
-      });
+    const deleted = await Favorite.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Favorite not found' });
+    }
+    return res.sendStatus(204);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

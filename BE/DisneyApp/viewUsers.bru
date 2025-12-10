@@ -1,0 +1,20 @@
+meta {
+  name: viewUsers
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3000/users
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MWY1MDBlNmQ1MzgwNTQxZTc3ZWU0MCIsInVzZXJuYW1lIjoibWlja2V5IiwiaWF0IjoxNzYzNzM2NTg1LCJleHAiOjE3NjM3NTA5ODV9.VflBdSG7lUc9b-IyTDqnSHd8stE9MElWfR9KhmThYIw
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

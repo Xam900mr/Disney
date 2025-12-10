@@ -92,6 +92,10 @@ router.post('/login', function(req, res, next) {
   User.findOne({ username: req.body.username })
     .then(function(user) {
       if (!user) return Promise.reject({ code: 404, message: 'Usuario no encontrado.' });
+      
+      console.log("Password enviada:", req.body.password);
+      console.log("Password en DB (hash):", user.password);
+
       return new Promise(function(resolve, reject) {
         user.comparePassword(req.body.password, function(err, isMatch) {
           if (err) return reject(err);
@@ -102,8 +106,9 @@ router.post('/login', function(req, res, next) {
     })
     .then(function(user) {
       return new Promise(function(resolve, reject) {
-        jwt.sign({ username: req.body.username }, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 }, function(err, token) {
-          if (err) return reject(err);
+        //jwt.sign({ username: req.body.username }, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 }, function(err, token) {
+        jwt.sign( { id: user._id, username: user.username },process.env.TOKEN_SECRET,{ expiresIn: 3600 * 4 }, function(err, token) {
+        if (err) return reject(err);
           resolve(token);
         });
       });

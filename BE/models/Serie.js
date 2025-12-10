@@ -13,7 +13,6 @@ var SerieSchema = new Schema({
     director: [String],
     writer: [String],
     actors: [String],
-    actors: [String],
     language: [String],
     country: [String],
     awards: String,
@@ -22,4 +21,4 @@ var SerieSchema = new Schema({
     imdbVotes: Number
 });
 
-module.exports = mongoose.model('Serie', SerieSchema, 'Disney');
+module.exports = mongoose.model('Serie', SerieSchema, 'series');

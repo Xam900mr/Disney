@@ -1,0 +1,20 @@
+meta {
+  name: nameCarac
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:3000/characters/?Yin
+  body: none
+  auth: inherit
+}
+
+params:query {
+  Yin: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

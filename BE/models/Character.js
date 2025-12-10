@@ -1,16 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var CharacterSchema = new Schema({
-    name: String,
-    films: [String],
-    shortfilms: [String],
-    tvshows: [String],
-    videogames: [String],
-    parkAttraction: String,
-    allies: [String],
-    enemies: [String],
-    createdAt: Date
-});
+var MovieSchema = new Schema({
+  movie_title: String,
+  release_date: String,
+  hero: String,
+  villian: String,
+  song: String
+});   
 
-module.exports = mongoose.model('Character', CharacterSchema, 'Disney');
+module.exports = mongoose.model('Character', MovieSchema, 'characters1');

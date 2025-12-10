@@ -25,6 +25,17 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
+router.get('/:name', function(req, res, next) {
+  Character.findByName(req.params.name)
+    .then(function(character) {
+      if (!character) return res.status(404).send({ message: 'Character not found' });
+      return res.status(200).json(character);
+    })
+    .catch(function(err) {
+      return res.status(500).send(err);
+    });
+});
+
 // Create new character
 router.post('/', function(req, res, next) {
   Character.create(req.body)
@@ -46,5 +57,6 @@ router.delete('/:id', function(req, res, next) {
       return res.status(500).send(err);
     });
 });
+
 
 module.exports = router;
