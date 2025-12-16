@@ -5,36 +5,32 @@ import { Row, Col, Button } from 'reactstrap';
 import { AiOutlineArrowLeft, AiFillAppstore, AiFillVideoCamera, AiFillEdit, AiOutlineGlobal } from "react-icons/ai";
 
 import Header from '../Header.jsx';
-import { getSingleMovie } from "../../utils/apicall.js";
+import { getSingleCharacter } from "../../utils/apicall.js";
 
-export default function ShowMovie(){
+export default function ShowCharacter(){
 
-  const [movie, setMovie] = useState(null);
+  const [character, setCharacter] = useState(null);
 
-  const getMovie = (id) => {
-    getSingleMovie(id)
-      .then((movie) => {
-        setMovie(movie);
-      })
-      .catch((err) => {
-        console.error('Get single movie error', err);
-      });
+  const getCharacter = (id) => {
+    getSingleCharacter(id).then((character) => {
+      setCharacter(character);
+    });
   }
 
   const { id } = useParams();
 
   useEffect(() =>{
-    getMovie(id);
+    getCharacter(id);
   },[id]);
 
-  return movie === null ? 
+  return character === null ? 
     (<div>
       <Row>
         <Col>
           <Header/>
         </Col>
       </Row>
-      <Row><h1 className="text-white">Loading...</h1></Row>
+      <Row><h1 class="text-white">Loading...</h1></Row>
     </div>)
     : (
     <div>
@@ -42,18 +38,18 @@ export default function ShowMovie(){
     <Row>
       <Col xs ="12" >
         <div className="card-body">
-          <h4 className="text-white">{movie.title} </h4>
+          <h4 className="text-white">{character.name} </h4>
           <Link to={`/home`}><Button color="danger"><AiOutlineArrowLeft/> Back</Button></Link>
-          <p className="text-white"><AiFillAppstore/> Category:
-            {Array.isArray(movie.category) && movie.category.map((cat, idx) => {
-              return (<span key={`${cat}-${idx}`} className="text-white"> {cat} </span>);
+          <p className="text-white"><AiFillAppstore/> Category: 
+            {character.movies.map((cat) => {
+              return (<span className="text-white"> {cat} </span>);
             })}
           </p>
           <div className="video-responsive">
             <iframe
               width="100%"
               height="650"
-              src={`https://www.youtube.com/embed/${movie.trailer}`}
+              src={`https://www.youtube.com/embed/${character.trailer}`}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -61,9 +57,9 @@ export default function ShowMovie(){
             />
           </div>
           <p className="text-white">
-            <AiFillEdit/> Plot: {movie.plot}<br/>
-            <AiFillVideoCamera/> Director: {movie.director}<br/>
-            <AiOutlineGlobal/>Country: {movie.country}
+            <AiFillEdit/> Plot: {character.plot}<br/>
+            <AiFillVideoCamera/> Director: {character.director}<br/>
+            <AiOutlineGlobal/>Country: {character.country}
           </p> 
         </div>
       </Col>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Row, Col, Container, Badge, CardTitle, Table, Button, Media } from 'reactstrap';
+import { Row, Col, Container, Badge, CardTitle, Table, Button } from 'reactstrap';
 import { AiFillEye, AiOutlineDelete } from "react-icons/ai";
 
 import { getMyBookmarks, deleteBookmark } from "../../utils/apicall.js";
@@ -26,7 +26,10 @@ export default function MyMovieList(){
     //Deleting selected bookmark
     const deleteSelBookmark = (bookmark) => {
     deleteBookmark(bookmark._id)
-      .then((res) => (getBookmarks()));
+      .then((res) => getBookmarks())
+      .catch((err) => {
+        console.error('Delete bookmark error', err);
+      });
     }
 
     const bookmarkRender = (bookmark) => {
@@ -36,10 +39,10 @@ export default function MyMovieList(){
             <div className="card" style={{ backgroundColor: 'black' }}>
               <div className="card-body">
                   <Row>
-                    <Col xs="2"><Media src={bookmark.movie.poster} alt="Poster" height="150px"/></Col>
-                    <Col xs="8">
-                              <h6>{bookmark.movie.title}</h6>
-                              <font color="#F1C61A">Added to bookmarks: {getDateInStrFormat(new Date(bookmark.addeddate))}</font><br/>
+                    <Col xs="2"><img src={"https://m.media-amazon.com/images/I/713VJ-dHN9L._AC_UF350,350_QL80_.jpg"} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
+                    <Col xs="8" className="text-white">
+                              <h6 className="text-white">{bookmark.movie.title}</h6>
+                              <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(bookmark.addeddate))}</span><br/>
                               Year: {bookmark.movie.year}<br/>
                               Director: {bookmark.movie.director}<br/>
                               Popularity: {bookmark.movie.imdbRating}<br/>
@@ -47,10 +50,12 @@ export default function MyMovieList(){
                     </Col>
                     <Col xs="2">
                               <table cellPadding="3">
-                                <tr>
-                                  <td><Link to={`/home/details/${bookmark.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-                                  <td><Button color="secondary" onClick={() => deleteSelBookmark(bookmark)}><AiOutlineDelete/> Remove</Button></td>                
-                                </tr>
+                                <tbody>
+                                  <tr>
+                                    <td><Link to={`/home/details/${bookmark.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
+                                    <td><Button color="secondary" onClick={() => deleteSelBookmark(bookmark)}><AiOutlineDelete/> Remove</Button></td>
+                                  </tr>
+                                </tbody>
                               </table>
                     </Col>
                   </Row>
@@ -61,7 +66,7 @@ export default function MyMovieList(){
         
      
         }
-        return <></>
+        return null
     }
    
     return bookmarks === null ? 
@@ -71,7 +76,7 @@ export default function MyMovieList(){
             <Header/>
           </Col>
         </Row>
-        <Row><h1 class="text-white">Loading...</h1></Row>
+        <Row><h1 className="text-white">Loading...</h1></Row>
       </div>) 
       : (
       <div>
@@ -81,14 +86,16 @@ export default function MyMovieList(){
           </Col>
         </Row> 
         <Container>
-          <CardTitle tag="center"><Badge pill color="dark">Total bookmarks found: {bookmarks.length}</Badge></CardTitle>
+          <CardTitle className="text-center"><Badge pill color="dark">Total bookmarks found: {bookmarks.length}</Badge></CardTitle>
             <Table dark>
               <tbody>
-                {bookmarks.map((bookmark) => 
-                  {
-                    return bookmarkRender(bookmark);
-                  })  
-                }            
+                {bookmarks.map((bookmark, idx) => {
+                  return (
+                    <React.Fragment key={bookmark._id || (bookmark.movie && bookmark.movie._id) || idx}>
+                      {bookmarkRender(bookmark)}
+                    </React.Fragment>
+                  )
+                })}            
               </tbody>
             </Table>
         </Container>
