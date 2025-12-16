@@ -49,7 +49,7 @@ export default function ShowMovie(){
               return (<span key={`${cat}-${idx}`} className="text-black"> {cat} </span>);
             })}
           </p>
-          <div class="video-responsive">
+          <div className="video-responsive">
             <iframe
               width="100%"
               height="650"
@@ -60,7 +60,7 @@ export default function ShowMovie(){
               title="Embedded youtube"
             />
           </div>
-          <p class="text-black">
+          <p className="text-black">
             <AiFillEdit/> Plot: {movie.plot}<br/>
             <AiFillVideoCamera/> Director: {movie.director}<br/>
             <AiOutlineGlobal/>Country: {movie.country}
