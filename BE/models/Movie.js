@@ -12,13 +12,15 @@ var MovieSchema = new Schema({
     director: [String],
     writer: [String],
     actors: [String],
-    actors: [String],
     language: [String],
     country: [String],
     awards: String,
     metascore: Number,
-    imdbRating: Number,
-    imdbVotes: Number
+    imdb_rating: Number,
+    portada_url: String,
+    trailer_url: String,
+    backdrop_url: String,
+    tagline: String
 });
 
 module.exports = mongoose.model('Movie', MovieSchema, 'movies');

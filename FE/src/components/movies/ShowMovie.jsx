@@ -42,25 +42,25 @@ export default function ShowMovie(){
     <Row>
       <Col xs ="12" >
         <div className="card-body">
-          <h4 className="text-white">{movie.title} </h4>
+          <h4 className="text-black">{movie.title} </h4>
           <Link to={`/home`}><Button color="danger"><AiOutlineArrowLeft/> Back</Button></Link>
-          <p className="text-white"><AiFillAppstore/> Category:
-            {Array.isArray(movie.category) && movie.category.map((cat, idx) => {
-              return (<span key={`${cat}-${idx}`} className="text-white"> {cat} </span>);
+          <p className="text-black"><AiFillAppstore/> Category:
+            {Array.isArray(movie.genre) && movie.genre.map((cat, idx) => {
+              return (<span key={`${cat}-${idx}`} className="text-black"> {cat} </span>);
             })}
           </p>
-          <div className="video-responsive">
+          <div class="video-responsive">
             <iframe
               width="100%"
               height="650"
-              src={`https://www.youtube.com/embed/${movie.trailer}`}
+              src={movie.trailer_url}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title="Embedded youtube"
             />
           </div>
-          <p className="text-white">
+          <p class="text-black">
             <AiFillEdit/> Plot: {movie.plot}<br/>
             <AiFillVideoCamera/> Director: {movie.director}<br/>
             <AiOutlineGlobal/>Country: {movie.country}

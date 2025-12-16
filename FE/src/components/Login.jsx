@@ -14,11 +14,11 @@ import {
 
 import { jwtDecode } from "jwt-decode";
 
-
 import { GoogleLogin } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import config from "../config.js";
+import { googleSignIn } from "../utils/apicall.js";
 
 import MyImgLogin from "../images/background_mernflixdark.png";
 
@@ -41,16 +41,29 @@ export default function Login() {
 
 
   const onSuccess = (res) => {
-    ////////////////////////Lo que debería contener onSucess////////////////////////
-    var email=jwtDecode(res.credential).email;
-    var name=jwtDecode(res.credential).name;
-    sessionStorage.setItem('email', email);
-    sessionStorage.setItem('name', name);
-    navigate("/home");
+    const email = jwtDecode(res.credential).email;
+    const name = jwtDecode(res.credential).name;
+    
+    // Llamar al backend para crear/obtener usuario y generar token
+    googleSignIn(email, name)
+      .then((response) => {
+        // Guardar email, name y token en sessionStorage
+        sessionStorage.setItem('email', email);
+        sessionStorage.setItem('name', name);
+        sessionStorage.setItem('token', response.token);
+        
+        setLoginMessage(null);
+        navigate("/home");
+      })
+      .catch((err) => {
+        console.error('Google Sign-In error:', err);
+        setLoginMessage(<Alert color="danger">Error en el login. Intenta de nuevo.</Alert>);
+      });
   };
 
   const onError = () => {
     console.log("[Login Failed]");
+    setLoginMessage(<Alert color="danger">Error en el login de Google.</Alert>);
   };
 
   return (

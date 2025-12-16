@@ -23,24 +23,39 @@ function googleSignIn(email, name) {
 
 function getAuthHeader() {
     const token = sessionStorage.getItem('token');
+    console.log('[apicall] Token obtenido:', token ? 'SÍ' : 'NO');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 function addNewFavorites(email, movieId, seriesId = null){
+    const authHeader = getAuthHeader();
+    
+    console.log('[addNewFavorites] Iniciando...');
+    console.log('[addNewFavorites] Email:', email);
+    console.log('[addNewFavorites] MovieID:', movieId);
+    console.log('[addNewFavorites] Headers:', authHeader);
+    
     return API.post('/favorites', {
         email,
         movieId,
         seriesId
     }, {
-        headers: getAuthHeader()
-    }).then(result => result.data);
+        headers: authHeader
+    }).then(result => {
+        console.log('[addNewFavorites] ✓ Éxito:', result.data);
+        return result.data;
+    }).catch(error => {
+        console.error('[addNewFavorites] ✗ Error:', error);
+        console.error('[addNewFavorites] Response:', error.response?.data);
+        throw error;
+    });
 }
 
 function getSingleMovie(idmovie) {
     return API.get('/movies/'+idmovie).then(res => res.data);
  }
 
- function getMyfavorites(email) {
+function getMyfavorites(email) {
     return API.get('/favorites/'+email, {
         headers: getAuthHeader()
     }).then(res => res.data);

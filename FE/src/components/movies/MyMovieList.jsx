@@ -4,36 +4,41 @@ import { Link } from 'react-router-dom';
 import { Row, Col, Container, Badge, CardTitle, Table, Button } from 'reactstrap';
 import { AiFillEye, AiOutlineDelete } from "react-icons/ai";
 
-import { getMyBookmarks, deleteBookmark } from "../../utils/apicall.js";
+import { getMyfavorites, deleteFavorites } from "../../utils/apicall.js";
 import { getDateInStrFormat } from "../../utils/utils.js";
 
 import Header from '../Header.jsx';
 
 export default function MyMovieList(){
 
-    const [bookmarks, setBookmarks] = useState(null);
+    const [favorites, setFavorites] = useState(null);
   
-    const getBookmarks = () => {
-      getMyBookmarks(sessionStorage.getItem('email')).then((bookmarks) => {
-        setBookmarks(bookmarks);
-      });
+    const getFavorites = () => {
+      getMyfavorites(sessionStorage.getItem('email'))
+        .then((favorites) => {
+          setFavorites(favorites);
+        })
+        .catch((err) => {
+          console.error('Error loading favorites:', err);
+          setFavorites([]);
+        });
     }
   
     useEffect(() =>{
-      getBookmarks();
+      getFavorites();
     },[]);
 
     //Deleting selected bookmark
-    const deleteSelBookmark = (bookmark) => {
-    deleteBookmark(bookmark._id)
-      .then((res) => getBookmarks())
+    const deleteSelFavorite = (favorite) => {
+    deleteFavorites(favorite._id)
+      .then((res) => getFavorites())
       .catch((err) => {
-        console.error('Delete bookmark error', err);
+        console.error('Delete favorite error', err);
       });
     }
 
-    const bookmarkRender = (bookmark) => {
-        if(bookmark!=null && bookmark.movie!=null){
+    const favoriteRender = (favorite) => {
+        if(favorite!=null && favorite.movie!=null){
         return <Row className="justify-content-center">
           <Col>    
             <div className="card" style={{ backgroundColor: 'black' }}>
@@ -41,19 +46,19 @@ export default function MyMovieList(){
                   <Row>
                     <Col xs="2"><img src={"https://m.media-amazon.com/images/I/713VJ-dHN9L._AC_UF350,350_QL80_.jpg"} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
                     <Col xs="8" className="text-white">
-                              <h6 className="text-white">{bookmark.movie.title}</h6>
-                              <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(bookmark.addeddate))}</span><br/>
-                              Year: {bookmark.movie.year}<br/>
-                              Director: {bookmark.movie.director}<br/>
-                              Popularity: {bookmark.movie.imdbRating}<br/>
-                              Plot: {bookmark.movie.plot}
+                              <h6 className="text-white">{favorite.movie.title}</h6>
+                              <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
+                              Year: {favorite.movie.year}<br/>
+                              Director: {favorite.movie.director}<br/>
+                              Popularity: {favorite.movie.imdb_rating}<br/>
+                              Plot: {favorite.movie.plot}
                     </Col>
                     <Col xs="2">
                               <table cellPadding="3">
                                 <tbody>
                                   <tr>
-                                    <td><Link to={`/home/details/${bookmark.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-                                    <td><Button color="secondary" onClick={() => deleteSelBookmark(bookmark)}><AiOutlineDelete/> Remove</Button></td>
+                                    <td><Link to={`/home/details/${favorite.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
+                                    <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -69,7 +74,7 @@ export default function MyMovieList(){
         return null
     }
    
-    return bookmarks === null ? 
+    return favorites === null ? 
       (<div>
         <Row>
           <Col>
@@ -86,13 +91,13 @@ export default function MyMovieList(){
           </Col>
         </Row> 
         <Container>
-          <CardTitle className="text-center"><Badge pill color="dark">Total bookmarks found: {bookmarks.length}</Badge></CardTitle>
+          <CardTitle className="text-center"><Badge pill color="dark">Total favorites found: {favorites.length}</Badge></CardTitle>
             <Table dark>
               <tbody>
-                {bookmarks.map((bookmark, idx) => {
+                {favorites.map((favorite, idx) => {
                   return (
-                    <React.Fragment key={bookmark._id || (bookmark.movie && bookmark.movie._id) || idx}>
-                      {bookmarkRender(bookmark)}
+                    <React.Fragment key={favorite._id || (favorite.movie && favorite.movie._id) || idx}>
+                      {favoriteRender(favorite)}
                     </React.Fragment>
                   )
                 })}            

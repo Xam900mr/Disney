@@ -30,6 +30,7 @@ function tokenVerify(req, res, next) {
       return res.status(401).send({ ok: false, message: 'Failed to authenticate token.' });
     }
     req.userId = decoded.id;
+    req.userEmail = decoded.email;
     next();
   });
 }
@@ -37,7 +38,16 @@ function tokenVerify(req, res, next) {
 //Agregar nuevo favorito
 router.post('/', tokenVerify, async function(req, res) {
   try {
-    const { email, movieId, seriesId } = req.body;
+    const { movieId, seriesId } = req.body;
+    const email = req.userEmail || req.body.email;
+
+    if (!movieId && !seriesId) {
+      return res.status(400).json({ error: 'Debes proporcionar una película o serie' });
+    }
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email no encontrado' });
+    }
 
     const newFav = await Favorite.create({
       email,
@@ -47,6 +57,7 @@ router.post('/', tokenVerify, async function(req, res) {
 
     res.status(201).json(newFav);
   } catch (err) {
+    console.error('Error al agregar favorito:', err);
     res.status(500).json({ error: err.message });
   }
 });

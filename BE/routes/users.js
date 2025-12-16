@@ -107,7 +107,7 @@ router.post('/login', function(req, res, next) {
     .then(function(user) {
       return new Promise(function(resolve, reject) {
         //jwt.sign({ username: req.body.username }, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 }, function(err, token) {
-        jwt.sign( { id: user._id, username: user.username },process.env.TOKEN_SECRET,{ expiresIn: 3600 * 4 }, function(err, token) {
+        jwt.sign( { id: user._id, username: user.username, email: user.email },process.env.TOKEN_SECRET,{ expiresIn: 3600 * 4 }, function(err, token) {
         if (err) return reject(err);
           resolve(token);
         });
@@ -122,6 +122,43 @@ router.post('/login', function(req, res, next) {
       return res.status(500).send(err && err.message ? err.message : err);
     });
 }, function(req, res, next) {});
+
+//Google Sign-In
+router.post('/google-signin', async function(req, res, next) {
+  debug("Google Sign-In");
+  try {
+    const { email, name } = req.body;
+    
+    // Buscar usuario existente
+    let user = await User.findOne({ email: email });
+    
+    // Si no existe, crear uno nuevo
+    if (!user) {
+      user = await User.create({
+        username: email,
+        email: email,
+        name: name,
+        lastname: name, // En Google no siempre tenemos lastname
+        password: 'google_signin' // Placeholder, no se usa
+      });
+    }
+    
+    // Generar token JWT
+    const token = jwt.sign(
+      { id: user._id, username: user.username, email: user.email },
+      process.env.TOKEN_SECRET,
+      { expiresIn: 3600 * 24 * 7 } // 7 días
+    );
+    
+    return res.status(200).json({ 
+      message: 'Google Sign-In exitoso',
+      token: token,
+      user: { id: user._id, email: user.email, name: user.name }
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 //Actualizar usuario por ID
 router.put("/:id", tokenVerify, 
