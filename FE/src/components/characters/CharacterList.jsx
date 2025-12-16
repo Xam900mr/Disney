@@ -26,7 +26,7 @@ export default function CharacterList() {
         </Col>
       </Row>
       <Row>
-        <h1 class="text-white">Loading...</h1>
+        <h1 className="text-white">Loading...</h1>
       </Row>
     </div>
   ) : (

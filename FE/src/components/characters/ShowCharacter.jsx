@@ -30,7 +30,7 @@ export default function ShowCharacter(){
           <Header/>
         </Col>
       </Row>
-      <Row><h1 class="text-white">Loading...</h1></Row>
+      <Row><h1 className="text-white">Loading...</h1></Row>
     </div>)
     : (
     <div>

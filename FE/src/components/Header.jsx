@@ -29,7 +29,7 @@ export default function Header(){
           </Nav>
           <NavbarText>
             <span className="text-white">{sessionStorage.getItem('name')} </span>
-            <button class="btn btn-dark" onClick={onLogout}>Logout</button>
+            <button className="btn btn-dark" onClick={onLogout}>Logout</button>
 
           </NavbarText>
         </Collapse>
