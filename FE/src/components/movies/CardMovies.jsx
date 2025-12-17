@@ -1,73 +1,98 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from 'reactstrap';
-import { AiFillEye, AiFillSignal, AiFillAppstore, AiTwotoneCalendar, AiOutlineStar, AiOutlineLoading3Quarters } from "react-icons/ai";
 
-import { addNewFavorites } from "../../utils/apicall.js";
+import {AiFillEye, AiFillSignal, AiFillAppstore, AiTwotoneCalendar, AiOutlineStar, AiFillStar, AiOutlineLoading3Quarters} from "react-icons/ai";
 
-export default function CardMovie({ movie }){
+import {addNewFavorites, deleteFavorites, checkFavorite} from "../../utils/apicall.js";
 
-  const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
+import "./CardMovie.css";
 
-  const addFavorites = () => {
-    //Save bookmark in database with the api call
-    setLoading(true);
-    const email = sessionStorage.getItem('email');
+export default function CardMovie({ movie }) {
+
+  const [loading, setLoading] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [favoriteId, setFavoriteId] = useState(null);
+
+  useEffect(() => {
     const token = sessionStorage.getItem('token');
-    
-        if (!email || !token) {
-      alert('Por favor inicia sesión primero');
-      setLoading(false);
-      return;
-    }
+    if (!token || !movie?._id) return;
 
-    if (!movie._id) {
-      alert('Error: película no válida');
-      setLoading(false);
-      return;
-    }
-
-    console.log('Agregando película:', { email, movieId: movie._id });
-    
-    addNewFavorites(email, movie._id)
-      .then((res) => {
-        console.log('Película agregada exitosamente:', res);
-        alert('¡Película agregada a favoritos!');
-        navigate('/favorites');
+    checkFavorite(movie._id, null)
+      .then(res => {
+        setIsFav(res.exists);
+        if (res.favoriteId) {
+          setFavoriteId(res.favoriteId);
+        }
       })
-      .catch((err) => {
-        console.error('Error al agregar favorito:', err);
-        const errorMsg = err.response?.data?.error || err.message || 'Error desconocido';
-        alert('Error al agregar a favoritos: ' + errorMsg);
-        setLoading(false);
-      });
-  }
+      .catch(err => console.error(err));
+  }, [movie._id]);
 
-  return(
-    <div className="card" style={{ width: '18rem', backgroundColor: 'black' }}>
+  const toggleFavorite = async () => {
+    setLoading(true);
+    try {
+      if (!isFav) {
+        const res = await addNewFavorites(null, movie._id);
+        setIsFav(true);
+        setFavoriteId(res._id);
+      } else {
+        await deleteFavorites(favoriteId);
+        setIsFav(false);
+        setFavoriteId(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar favoritos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="card movie-card">
       <div className="card-body">
+
         <h6 className="text-white">{movie.title}</h6>
-        <p>
-          <img src={movie.portada_url} alt="Poster" style={{ height: '350px' }} className="img-fluid" />
+
+        <img
+          src={movie.portada_url}
+          alt="Poster"
+          className="img-fluid movie-poster"
+        />
+
+        <p className="text-white mt-2">
+          <AiTwotoneCalendar /> Lanzamiento: {movie.year}<br />
+          <AiFillSignal /> Popularidad: {movie.imdb_rating}<br />
+          <AiFillAppstore /> Géneros:
+          {Array.isArray(movie.genre) &&
+            movie.genre.slice(0, 2).map((cat, idx) => (
+              <span key={idx}> {cat}</span>
+            ))}
+          {movie.genre?.length > 2 && <span> ...</span>}
         </p>
-        <p className="text-white">
-          <AiTwotoneCalendar/> Cinema release: {movie.year}<br/>
-          <AiFillSignal/> Popularity: {movie.imdb_rating}<br/>
-          <AiFillAppstore/> Category:
-          {Array.isArray(movie.genre) && movie.genre.map((cat, idx) => {
-            return (<span key={`${cat}-${idx}`} className="text-white"> {cat} </span>);
-          })}
-        </p> 
-        <table cellPadding="3">
-          <tbody>
-            <tr>
-              <td><Link to={`/movies/details/${movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-              <td><Button color="warning" onClick={addFavorites} disabled={loading}><AiOutlineStar/> {loading ? 'Adding...' : 'Add'}</Button></td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div className="d-flex justify-content-between align-items-center mt-2">
+          <Link to={`/movies/details/${movie._id}`}>
+            <Button color="danger">
+              <AiFillEye /> Watch
+            </Button>
+          </Link>
+
+          <Button
+            className={`fav-btn ${isFav ? 'fav-active' : ''}`}
+            onClick={toggleFavorite}
+            disabled={loading}
+          >
+            {loading ? (
+              <AiOutlineLoading3Quarters className="spin" />
+            ) : isFav ? (
+              <AiFillStar />
+            ) : (
+              <AiOutlineStar />
+            )}
+          </Button>
+        </div>
+
       </div>
     </div>
   );

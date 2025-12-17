@@ -25,16 +25,21 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
-router.get('/:title', function(req, res, next) {
-  Movie.findById(req.params.id)
-    .then(function(movie) {
-      if (!movie) return res.status(404).json({ message: 'Movie not found' });
+router.get('/title/:title', function (req, res) {
+  Movie.findOne({
+    title: { $regex: `^${req.params.title}$`, $options: 'i' }
+  })
+    .then(function (movie) {
+      if (!movie)
+        return res.status(404).json({ message: 'Movie not found' });
+
       return res.status(200).json(movie);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       return res.status(500).json({ error: err.message });
     });
 });
+
 
 // Create new movie
 router.post('/', function(req, res, next) {

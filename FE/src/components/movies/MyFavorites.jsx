@@ -38,40 +38,78 @@ export default function MyMovieList(){
     }
 
     const favoriteRender = (favorite) => {
-        if(favorite!=null && favorite.movie!=null){
-        return <Row className="justify-content-center">
-          <Col>    
-            <div className="card" style={{ backgroundColor: 'black' }}>
-              <div className="card-body">
-                  <Row>
-                    <Col xs="2"><img src={favorite.movie.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
-                    <Col xs="8" className="text-white">
-                              <h6 className="text-white">{favorite.movie.title}</h6>
-                              <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
-                              Year: {favorite.movie.year}<br/>
-                              Director: {favorite.movie.director}<br/>
-                              Popularity: {favorite.movie.imdb_rating}<br/>
-                              Plot: {favorite.movie.plot}
-                    </Col>
-                    <Col xs="2">
-                              <table cellPadding="3">
-                                <tbody>
-                                  <tr>
-                                    <td><Link to={`/movies/details/${favorite.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-                                    <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                    </Col>
-                  </Row>
-              </div>
-            </div>
-          </Col>
-        </Row>
-        
-     
+        if (!favorite) return null;
+
+        if (favorite.movie) {
+            const m = favorite.movie;
+            return (
+                <Row className="justify-content-center">
+                  <Col>
+                    <div className="card" style={{ backgroundColor: 'black' }}>
+                      <div className="card-body">
+                          <Row>
+                            <Col xs="2"><img src={m.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
+                            <Col xs="8" className="text-white">
+                                      <h6 className="text-white">{m.title}</h6>
+                                      <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
+                                      Year: {m.year}<br/>
+                                      Director: {m.director}<br/>
+                                      Popularity: {m.imdb_rating}<br/>
+                                      Plot: {m.plot}
+                            </Col>
+                            <Col xs="2">
+                                      <table cellPadding="3">
+                                        <tbody>
+                                          <tr>
+                                            <td><Link to={`/movies/details/${m._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
+                                            <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                            </Col>
+                          </Row>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+            );
         }
-        return null
+
+        if (favorite.series) {
+            const s = favorite.series;
+            return (
+                <Row className="justify-content-center">
+                  <Col>
+                    <div className="card" style={{ backgroundColor: 'black' }}>
+                      <div className="card-body">
+                          <Row>
+                            <Col xs="2"><img src={s.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
+                            <Col xs="8" className="text-white">
+                                      <h6 className="text-white">{s.title}</h6>
+                                      <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
+                                      Years: {s.year_start} - {(s.year_end && s.year_end !== 0) ? s.year_end : 'En emision'}<br/>
+                                      Popularity: {s.imdb_rating}<br/>
+                                      Plot: {s.plot}
+                            </Col>
+                            <Col xs="2">
+                                      <table cellPadding="3">
+                                        <tbody>
+                                          <tr>
+                                            <td><Link to={`/series/details/${s._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
+                                            <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                            </Col>
+                          </Row>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+            );
+        }
+
+        return null;
     }
    
     return favorites === null ? 
@@ -95,7 +133,7 @@ export default function MyMovieList(){
               <tbody>
                 {favorites.map((favorite, idx) => {
                   return (
-                    <React.Fragment key={favorite._id || (favorite.movie && favorite.movie._id) || idx}>
+                    <React.Fragment key={favorite._id || (favorite.movie && favorite.movie._id) || (favorite.series && favorite.series._id) || idx}>
                       {favoriteRender(favorite)}
                     </React.Fragment>
                   )

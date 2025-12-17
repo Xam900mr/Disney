@@ -4,7 +4,7 @@ import { getAllSeries } from "../../utils/apicall.js";
 
 import Header from "../Header.jsx";
 import CardSeries from "./CardSeries.jsx";
-import MovieCarousel from "./MovieCarouselCustom.jsx";
+import SerieCarousel from "./SeriesCarousel.jsx";
 
 export default function SeriesList() {
   const [series, setSeries] = useState(null);
@@ -38,20 +38,22 @@ export default function SeriesList() {
         </Col>
       </Row>
       <Container>
+          <p></p>
         <Row>
           <Col>
-            <MovieCarousel />
+            <SerieCarousel/>
           </Col>
         </Row>
+        <p></p>
         
         <CardTitle className="text-center">
 
         </CardTitle>
         <Row>
-          {series.map((series, index) => {
+          {series.map((serie, index) => {
             return (
-              <Col key={series.id || series._id || series.title || index} xs="12" sm="6" md="4" lg="3">
-                <CardSeries series={series} />
+              <Col key={serie.id || serie._id || serie.title || index} xs="12" sm="6" md="4" lg="3">
+                <CardSeries serie={serie} />
               </Col>
             );
           })}

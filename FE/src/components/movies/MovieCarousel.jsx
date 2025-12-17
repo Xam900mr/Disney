@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Carousel from 'react-bootstrap/Carousel';
 import { getAllMovies } from '../../utils/apicall.js';
 
-function MovieCarouselCustom(args) {
+function MovieCarousel(args) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -35,11 +35,11 @@ function MovieCarouselCustom(args) {
     <Carousel fade interval={4000} pause="hover" {...args}>
       {items.map((item) => (
         <Carousel.Item key={item.id}>
-          <Link to={`/movies/details/${item.id}`} style={{ display: 'block', width: '100%', height: '420px', overflow: 'hidden' }}>
+          <Link to={`/movies/details/${item.id}`} style={{ display: 'block', width: '100%', height: 'auto', overflow: 'hidden', margin: '0 auto' }}>
             <img
               src={item.src}
               alt={item.altText}
-              style={{ width: '100%', height: '420px', objectFit: 'cover', display: 'block' }}
+              style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }}
             />
           </Link>
           <Carousel.Caption>
@@ -51,4 +51,4 @@ function MovieCarouselCustom(args) {
   );
 }
 
-export default MovieCarouselCustom;
+export default MovieCarousel;

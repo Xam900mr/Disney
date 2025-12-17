@@ -1,72 +1,104 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from 'reactstrap';
-import { AiFillEye, AiFillSignal, AiFillAppstore, AiTwotoneCalendar, AiOutlineStar, AiOutlineLoading3Quarters } from "react-icons/ai";
 
-import { addNewFavorites } from "../../utils/apicall.js";
+import {AiFillEye, AiFillSignal, AiFillAppstore, AiTwotoneCalendar, AiOutlineStar, AiFillStar, AiOutlineLoading3Quarters} from "react-icons/ai";
 
-export default function CardSeries({ serie }){
+import {addNewFavorites, deleteFavorites, checkFavorite} from "../../utils/apicall.js";
 
-  const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false);
+import "../movies/CardMovie.css"; 
 
-  const addFavorites = () => {
-    setLoading(true);
-    const email = sessionStorage.getItem('email');
+export default function CardSeries({ serie }) {
+
+  const [loading, setLoading] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [favoriteId, setFavoriteId] = useState(null);
+
+  useEffect(() => {
     const token = sessionStorage.getItem('token');
-    
-        if (!email || !token) {
-      alert('Por favor inicia sesión primero');
-      setLoading(false);
-      return;
-    }
+    if (!token || !serie?._id) return;
 
-    if (!serie._id) {
-      alert('Error: serie no válida');
-      setLoading(false);
-      return;
-    }
-
-    console.log('Agregando serie:', { email, serieId: serie._id });
-    
-    addNewFavorites(email, null, serie._id)
-      .then((res) => {
-        console.log('Serie agregada exitosamente:', res);
-        alert('¡Serie agregada a favoritos!');
-        navigate('/favorites');
+    checkFavorite(null, serie._id)
+      .then(res => {
+        setIsFav(res.exists);
+        if (res.favoriteId) {
+          setFavoriteId(res.favoriteId);
+        }
       })
-      .catch((err) => {
-        console.error('Error al agregar favorito:', err);
-        const errorMsg = err.response?.data?.error || err.message || 'Error desconocido';
-        alert('Error al agregar a favoritos: ' + errorMsg);
-        setLoading(false);
-      });
-  }
+      .catch(err => console.error(err));
+  }, [serie._id]);
 
-  return(
-    <div className="card" style={{ width: '18rem', backgroundColor: 'black' }}>
+  const toggleFavorite = async () => {
+    setLoading(true);
+    try {
+      if (!isFav) {
+        const res = await addNewFavorites(null, null, serie._id);
+        setIsFav(true);
+        setFavoriteId(res._id);
+      } else {
+        await deleteFavorites(favoriteId);
+        setIsFav(false);
+        setFavoriteId(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar favoritos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const finalizacion =
+    serie?.year_end && serie.year_end !== 0
+      ? serie.year_end
+      : 'En emisión';
+
+  return (
+    <div className="card movie-card">
       <div className="card-body">
+
         <h6 className="text-white">{serie.title}</h6>
-        <p>
-          <img src={serie.portada_url} alt="Poster" style={{ height: '350px' }} className="img-fluid" />
+
+        <img
+          src={serie.portada_url}
+          alt="Poster"
+          className="img-fluid movie-poster"
+        />
+
+        <p className="text-white mt-2">
+          <AiTwotoneCalendar /> Lanzamiento: {serie.year_start}<br />
+          <AiTwotoneCalendar /> Finalización: {finalizacion}<br />
+          <AiFillSignal /> Popularidad: {serie.imdb_rating}<br />
+          <AiFillAppstore /> Géneros:
+          {Array.isArray(serie.genre) &&
+            serie.genre.slice(0, 2).map((cat, idx) => (
+              <span key={idx}> {cat}</span>
+            ))}
+          {serie.genre?.length > 2 && <span> ...</span>}
         </p>
-        <p className="text-white">
-          <AiTwotoneCalendar/> Release: {serie.year}<br/>
-          <AiFillSignal/> Popularity: {serie.imdb_rating}<br/>
-          <AiFillAppstore/> Category:
-          {Array.isArray(serie.genre) && serie.genre.map((cat, idx) => {
-            return (<span key={`${cat}-${idx}`} className="text-white"> {cat} </span>);
-          })}
-        </p> 
-        <table cellPadding="3">
-          <tbody>
-            <tr>
-              <td><Link to={`/series/details/${serie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-              <td><Button color="warning" onClick={addFavorites} disabled={loading}><AiOutlineStar/> {loading ? 'Adding...' : 'Add'}</Button></td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div className="d-flex justify-content-between align-items-center mt-2">
+          <Link to={`/series/details/${serie._id}`}>
+            <Button color="danger">
+              <AiFillEye /> Watch
+            </Button>
+          </Link>
+
+          <Button
+            className={`fav-btn ${isFav ? 'fav-active' : ''}`}
+            onClick={toggleFavorite}
+            disabled={loading}
+          >
+            {loading ? (
+              <AiOutlineLoading3Quarters className="spin" />
+            ) : isFav ? (
+              <AiFillStar />
+            ) : (
+              <AiOutlineStar />
+            )}
+          </Button>
+        </div>
+
       </div>
     </div>
   );

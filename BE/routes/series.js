@@ -25,6 +25,22 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
+router.get('/title/:title', function (req, res) {
+  Serie.findOne({
+    title: { $regex: `^${req.params.title}$`, $options: 'i' }
+  })
+    .then(function (serie) {
+      if (!serie)
+        return res.status(404).json({ message: 'Serie not found' });
+
+      return res.status(200).json(serie);
+    })
+    .catch(function (err) {
+      return res.status(500).json({ error: err.message });
+    });
+});
+
+
 // Create new serie
 router.post('/', function(req, res, next) {
   Serie.create(req.body)

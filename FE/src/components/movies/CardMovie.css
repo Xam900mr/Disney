@@ -1,0 +1,47 @@
+.movie-card {
+  width: 18rem;
+  background-color: black;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.movie-poster {
+  height: 350px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.fav-btn {
+  background: transparent;
+  border: none;
+  color: gold;
+  font-size: 1.8rem;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.fav-btn:hover {
+  transform: scale(1.3) rotate(-5deg);
+  color: #ffcc00;
+}
+
+.fav-active {
+  color: #ffd700;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  font-size: 1.4rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

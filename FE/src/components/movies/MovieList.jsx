@@ -4,7 +4,7 @@ import { getAllMovies } from "../../utils/apicall.js";
 
 import Header from "../Header.jsx";
 import CardMovie from "./CardMovies.jsx";
-import MovieCarousel from "./MovieCarouselCustom.jsx";
+import MovieCarousel from "./MovieCarousel.jsx";
 
 export default function MovieList() {
   const [movies, setMovies] = useState(null);
@@ -27,7 +27,7 @@ export default function MovieList() {
         </Col>
       </Row>
       <Row>
-        <h1 className="text-white">Loading...</h1>
+        <h1 className="text-black">Loading...</h1>
       </Row>
     </div>
   ) : (

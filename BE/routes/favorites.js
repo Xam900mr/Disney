@@ -35,6 +35,36 @@ function tokenVerify(req, res, next) {
   });
 }
 
+// Existencia de algun favorito
+router.post('/check', tokenVerify, async (req, res) => {
+  try {
+    const { movieId, seriesId } = req.body;
+    const email = req.userEmail;
+
+    if (!movieId && !seriesId) {
+      return res.status(400).json({
+        exists: false,
+        message: 'movieId o seriesId es requerido'
+      });
+    }
+
+    const fav = await Favorite.findOne({
+      email,
+      ...(movieId && { movie: movieId }),
+      ...(seriesId && { series: seriesId })
+    });
+
+    return res.status(200).json({
+      exists: !!fav,
+      favoriteId: fav ? fav._id : null
+    });
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+
 //Agregar nuevo favorito
 router.post('/', tokenVerify, async function(req, res) {
   try {
@@ -68,8 +98,8 @@ router.post('/', tokenVerify, async function(req, res) {
 router.get('/:email', tokenVerify, async function(req, res) {
   try {
     const favorites = await Favorite.find({ email: req.params.email })
-      .populate('movie')   // ← carga la película completa
-      .populate('series'); // ← carga la serie completa
+      .populate('movie')   
+      .populate('series'); 
     return res.status(200).json(favorites);
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -91,5 +121,7 @@ router.delete('/:id', tokenVerify, async function(req, res) {
     return res.status(500).json({ error: err.message });
   }
 });
+
+
 
 module.exports = router;

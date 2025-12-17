@@ -16,7 +16,8 @@ var usersRouter = require("./routes/users");
 var moviesRouter = require("./routes/movies");
 var seriesRouter = require("./routes/series");
 var favoritesRouter = require("./routes/favorites");
-var charactersRouter = require("./routes/characters");
+var characters_seriesRouter = require("./routes/characters_series");
+var characters_moviesRouter = require("./routes/characters_movies");
 
 var app = express();
 var bodyParser = require("body-parser");
@@ -57,7 +58,8 @@ app.use("/users", usersRouter);
 app.use("/movies", moviesRouter);
 app.use("/series", seriesRouter);
 app.use("/favorites", favoritesRouter);
-app.use("/characters", charactersRouter);
+app.use("/characters_series", characters_seriesRouter);
+app.use("/characters_movies", characters_moviesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

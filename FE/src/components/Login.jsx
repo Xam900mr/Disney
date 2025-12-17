@@ -35,7 +35,7 @@ export default function Login() {
   useEffect(() => {
     const email = sessionStorage.getItem('email');
     if (email) {
-      navigate("/home");
+      navigate("/movies");
     }
   }, null);
 
