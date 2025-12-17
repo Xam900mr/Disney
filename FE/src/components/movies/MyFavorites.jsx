@@ -44,7 +44,7 @@ export default function MyMovieList(){
             <div className="card" style={{ backgroundColor: 'black' }}>
               <div className="card-body">
                   <Row>
-                    <Col xs="2"><img src={"https://m.media-amazon.com/images/I/713VJ-dHN9L._AC_UF350,350_QL80_.jpg"} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
+                    <Col xs="2"><img src={favorite.movie.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
                     <Col xs="8" className="text-white">
                               <h6 className="text-white">{favorite.movie.title}</h6>
                               <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
@@ -57,7 +57,7 @@ export default function MyMovieList(){
                               <table cellPadding="3">
                                 <tbody>
                                   <tr>
-                                    <td><Link to={`/home/details/${favorite.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
+                                    <td><Link to={`/movies/details/${favorite.movie._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
                                     <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
                                   </tr>
                                 </tbody>
@@ -91,7 +91,6 @@ export default function MyMovieList(){
           </Col>
         </Row> 
         <Container>
-          <CardTitle className="text-center"><Badge pill color="dark">Total favorites found: {favorites.length}</Badge></CardTitle>
             <Table dark>
               <tbody>
                 {favorites.map((favorite, idx) => {

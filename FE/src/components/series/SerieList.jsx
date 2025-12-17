@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Container, Badge, CardTitle } from "reactstrap";
-import { getAllMovies } from "../../utils/apicall.js";
+import { getAllSeries } from "../../utils/apicall.js";
 
 import Header from "../Header.jsx";
-import CardMovie from "./CardMovies.jsx";
+import CardSeries from "./CardSeries.jsx";
 import MovieCarousel from "./MovieCarouselCustom.jsx";
 
-export default function MovieList() {
-  const [movies, setMovies] = useState(null);
+export default function SeriesList() {
+  const [series, setSeries] = useState(null);
 
-  const getMovies = () => {
-    getAllMovies().then((movies) => {
-      setMovies(movies);
+  const getSeries = () => {
+    getAllSeries().then((series) => {
+      setSeries(series);
     });
   };
 
   useEffect(() => {
-    getMovies();
+    getSeries();
   }, []);
 
-  return movies === null ? (
+  return series === null ? (
     <div>
       <Row>
         <Col>
@@ -48,10 +48,10 @@ export default function MovieList() {
 
         </CardTitle>
         <Row>
-          {movies.map((movie, index) => {
+          {series.map((series, index) => {
             return (
-              <Col key={movie.id || movie._id || movie.title || index} xs="12" sm="6" md="4" lg="3">
-                <CardMovie movie={movie} />
+              <Col key={series.id || series._id || series.title || index} xs="12" sm="6" md="4" lg="3">
+                <CardSeries series={series} />
               </Col>
             );
           })}

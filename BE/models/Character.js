@@ -9,4 +9,4 @@ var MovieSchema = new Schema({
   song: String
 });   
 
-module.exports = mongoose.model('Character', MovieSchema, 'characters', 'characterSeries');
+module.exports = mongoose.model('Character', MovieSchema, 'characters');

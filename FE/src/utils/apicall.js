@@ -7,11 +7,17 @@ export {
     getMyfavorites,
     deleteFavorites,
     googleSignIn,
-    getAuthHeader
+    getAuthHeader,
+    getAllSeries,
+    getSingleSerie
 }
 
 function getAllMovies() {
     return API.get('/movies').then(res => res.data);
+}
+
+function getAllSeries() {
+    return API.get('/series').then(res => res.data);
 }
 
 function googleSignIn(email, name) {
@@ -36,9 +42,14 @@ function addNewFavorites(email, movieId, seriesId = null){
     }).then(result => result.data);
 }
 
+function getSingleSerie(idmovie) {
+    return API.get('/series/'+idmovie).then(res => res.data);
+ }
+
 function getSingleMovie(idmovie) {
     return API.get('/movies/'+idmovie).then(res => res.data);
  }
+ 
 
  function getMyfavorites(email) {
     return API.get('/favorites/'+email, {

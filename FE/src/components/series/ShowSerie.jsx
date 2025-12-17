@@ -5,26 +5,26 @@ import { Row, Col, Button, Container } from 'reactstrap';
 import { AiOutlineArrowLeft, AiFillAppstore, AiFillVideoCamera, AiFillEdit, AiOutlineGlobal } from "react-icons/ai";
 
 import Header from '../Header.jsx';
-import { getSingleMovie } from "../../utils/apicall.js";
+import { getSingleSerie } from "../../utils/apicall.js";
 
-export default function ShowMovie(){
+export default function ShowSerie(){
 
-  const [movie, setMovie] = useState(null);
+  const [serie, setSerie] = useState(null);
 
-  const getMovie = (id) => {
-    getSingleMovie(id)
-      .then((movie) => {
-        setMovie(movie);
+  const getSerie = (id) => {
+    getSingleSerie(id)
+      .then((serie) => {
+        setSerie(serie);
       })
       .catch((err) => {
-        console.error('Get single movie error', err);
+        console.error('Get single serie error', err);
       });
   }
 
   const { id } = useParams();
 
   useEffect(() =>{
-    getMovie(id);
+    getSerie(id);
   },[id]);
   const getYouTubeEmbedUrl = (url) => {
     if (!url || typeof url !== 'string') return null;
@@ -52,9 +52,9 @@ export default function ShowMovie(){
     }
   };
 
-  const embedUrl = movie ? getYouTubeEmbedUrl(movie.trailer_url) : null;
+  const embedUrl = serie ? getYouTubeEmbedUrl(serie.trailer_url) : null;
 
-  return movie === null ? (
+  return serie === null ? (
     <div>
       <Row>
         <Col>
@@ -70,10 +70,10 @@ export default function ShowMovie(){
       <Row>
         <Col xs ="12" >
           <div className="card-body">
-            <h4 className="text-black">{movie.title} </h4>
-            <Link to={`/movies`}><Button color="danger"><AiOutlineArrowLeft/> Back</Button></Link>
+            <h4 className="text-black">{serie.title} </h4>
+            <Link to={`/series`}><Button color="danger"><AiOutlineArrowLeft/> Back</Button></Link>
             <p className="text-black"><AiFillAppstore/> Category:
-              {Array.isArray(movie.genre) && movie.genre.map((cat, idx) => {
+              {Array.isArray(serie.genre) && serie.genre.map((cat, idx) => {
                 return (<span key={`${cat}-${idx}`} className="text-black"> {cat} </span>);
               })}
             </p>
@@ -89,13 +89,13 @@ export default function ShowMovie(){
                   title="Embedded youtube"
                 />
               ) : (
-                <div className="text-black">Trailer no disponible. <a href={movie.trailer_url} target="_blank" rel="noopener noreferrer">Abrir en YouTube</a></div>
+                <div className="text-black">Trailer no disponible. <a href={serie.trailer_url} target="_blank" rel="noopener noreferrer">Abrir en YouTube</a></div>
               )}
             </div>
             <p className="text-black">
-              <AiFillEdit/> Plot: {movie.plot}<br/>
-              <AiFillVideoCamera/> Director: {movie.director}<br/>
-              <AiOutlineGlobal/>Country: {movie.country}
+              <AiFillEdit/> Plot: {serie.plot}<br/>
+              <AiFillVideoCamera/> Director: {serie.director}<br/>
+              <AiOutlineGlobal/>Country: {serie.country}
             </p>
           </div>
         </Col>

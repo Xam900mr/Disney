@@ -17,19 +17,25 @@ export default function Header(){
 
     return (
       <Navbar light color="danger" expand="md">
-        <NavbarBrand><span className="text-white"><strong> MERNFlix</strong></span></NavbarBrand>
+        <NavbarBrand><span className="text-white"><strong> Baul Magico</strong></span></NavbarBrand>
         <Collapse navbar>
           <Nav className="me-auto" navbar>
             <NavItem>
-              <Link to="/home" style={{ textDecoration: 'none' }}><NavLink><span className="text-white" border="0">All movies </span></NavLink></Link>
+              <Link to="/movies" style={{ textDecoration: 'none' }}><NavLink><span className="text-white" border="0"> Peliculas </span></NavLink></Link>
             </NavItem>
             <NavItem>
-            <Link to="/home/bookmarks" style={{ textDecoration: 'none' }}><NavLink><span className="text-white">My Bookmarks</span></NavLink></Link>
+              <Link to="/series" style={{ textDecoration: 'none' }}><NavLink><span className="text-white" border="0"> Series </span></NavLink></Link>
+            </NavItem>
+            <NavItem>
+              <Link to="/characters" style={{ textDecoration: 'none' }}><NavLink><span className="text-white" border="0"> Personajes </span></NavLink></Link>
+            </NavItem>
+            <NavItem>
+            <Link to="/favorites" style={{ textDecoration: 'none' }}><NavLink><span className="text-white"> Favoritos </span></NavLink></Link>
             </NavItem>
           </Nav>
           <NavbarText>
             <span className="text-white">{sessionStorage.getItem('name')} </span>
-            <button className="btn btn-dark" onClick={onLogout}>Logout</button>
+            <button className="btn btn-dark" onClick={onLogout}>Cerrar Sesion</button>
 
           </NavbarText>
         </Collapse>

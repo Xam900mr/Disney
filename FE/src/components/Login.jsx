@@ -53,7 +53,7 @@ export default function Login() {
         sessionStorage.setItem('token', response.token);
         
         setLoginMessage(null);
-        navigate("/home");
+        navigate("/movies");
       })
       .catch((err) => {
         console.error('Google Sign-In error:', err);
