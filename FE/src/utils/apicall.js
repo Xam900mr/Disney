@@ -29,6 +29,8 @@ function getSingleMovie(idmovie) {
  function getMovieName(titleMovie){
     return API.get('/movies/title/'+encodeURIComponent(titleMovie)).then(res => res.data);
 }
+export const searchMovies = (query) =>
+  API.get(`/movies/search/${query}`).then(res => res.data);
 
 
 //Series
@@ -41,7 +43,21 @@ function getSingleSerie(idserie) {
 function getSerieName(titleSerie){
     return API.get('/series/title/'+titleSerie).then(res => res.data);
 }
+export const searchSeries = (query) =>
+  API.get(`/series/search/${query}`).then(res => res.data);
 
+// Busqueda unificada
+export const searchAll = async (query) => {
+  const [movies, series] = await Promise.all([
+    API.get(`/movies/search/${query}`).then(r => r.data),
+    API.get(`/series/search/${query}`).then(r => r.data)
+  ]);
+
+  return [
+    ...movies.map(m => ({ ...m, type: 'movie' })),
+    ...series.map(s => ({ ...s, type: 'series' }))
+  ];
+};
 
 //Personajes Series
 function getAllCharacters_Series() {

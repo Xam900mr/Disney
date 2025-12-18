@@ -72,11 +72,7 @@ export default function ShowMovie(){
           <div className="card-body">
             <h4 className="text-black">{movie.title} </h4>
             <Link to={`/movies`}><Button color="danger"><AiOutlineArrowLeft/> Back</Button></Link>
-            <p className="text-black"><AiFillAppstore/> Category:
-              {Array.isArray(movie.genre) && movie.genre.map((cat, idx) => {
-                return (<span key={`${cat}-${idx}`} className="text-black"> {cat} </span>);
-              })}
-            </p>
+            <p > {movie.tagline}    </p>
             <div className="video-responsive">
               {embedUrl ? (
                 <iframe
@@ -93,9 +89,9 @@ export default function ShowMovie(){
               )}
             </div>
             <p className="text-black">
-              <AiFillEdit/> Plot: {movie.plot}<br/>
+              <AiFillEdit/> Trama: {movie.plot}<br/>
               <AiFillVideoCamera/> Director: {movie.director}<br/>
-              <AiOutlineGlobal/>Country: {movie.country}
+              <AiOutlineGlobal/>Pais de origen: {movie.country}
             </p>
           </div>
         </Col>

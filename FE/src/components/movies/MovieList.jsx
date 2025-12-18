@@ -38,12 +38,13 @@ export default function MovieList() {
         </Col>
       </Row>
       <Container>
+        <p></p>
         <Row>
           <Col>
             <MovieCarousel />
           </Col>
         </Row>
-        
+        <p></p>        
         <CardTitle className="text-center">
 
         </CardTitle>
