@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -9,6 +9,7 @@ import {
   Card,
   CardTitle,
   CardText,
+  Button,
   Media,
 } from "reactstrap";
 
@@ -20,15 +21,31 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import config from "../config.js";
 import { googleSignIn } from "../utils/apicall.js";
 
-import MyImgLogin from "../images/background_mernflixdark.png";
+import MyImgLogin from "../images/DISNEY.png";
 
-var imgStyle = {
-  width: "100%",
-  height: "100%",
+const wrapperStyle = {
+  minHeight: "100vh",
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "flex-end",
+  padding: "24px",
+  position: "relative",
+  backgroundImage: `url(${MyImgLogin})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+};
+
+const googleCardStyle = {
+  position: "absolute",
+  top: 16,
+  right: 16,
+  width: "min(360px, 90vw)",
 };
 
 export default function Login() {
   const [loginMessage, setLoginMessage] = useState(null);
+  const googleBtnRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -67,29 +84,43 @@ export default function Login() {
   };
 
   return (
-    <Container>
-      <Row>
-        <Col>
-          <Card
-            inverse
-            body
-            className="text-center"
-            style={{ backgroundColor: "#000", borderColor: "#000" }}
-          >
-            <CardTitle tag="h5">Welcome to MERNFlix</CardTitle>
-            <CardText>React-based web project"</CardText>
-            <CardText>
-            <GoogleOAuthProvider clientId={config.clientID}>
-              <GoogleLogin
-                  auto_select
+    <Container fluid style={wrapperStyle}>
+      <div style={googleCardStyle}>
+        <Card className="shadow" style={{ padding: 12 }}>
+          <CardText className="text-center" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Button color="primary" onClick={() => googleBtnRef.current?.click()}>
+              Iniciar sesión
+            </Button>
+            {/* <div style={{ display: "none" }}> */}
+              <GoogleOAuthProvider clientId={config.clientID}>
+                <GoogleLogin
+                  text="continue_with"
+                  shape="pill"
                   onSuccess={onSuccess}
                   onError={onError}
                   useOneTap
-              />
-            </GoogleOAuthProvider>
-              {loginMessage}
-            </CardText>
-            <Media style={imgStyle} object src={MyImgLogin} alt="Login" />
+                  ref={googleBtnRef}
+                />
+              </GoogleOAuthProvider>
+            {/* </div> */}
+            {loginMessage}
+          </CardText>
+        </Card>
+      </div>
+
+      <Row className="w-100 justify-content-center align-items-center">
+        <Col xs={11} sm={10} md={6} lg={4} xl={3}>
+          <Card
+            inverse
+            body
+            className="text-center shadow"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              borderColor: "transparent",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <CardTitle tag="h5">Bienvenidos a Baúl Mágico</CardTitle>
           </Card>
         </Col>
       </Row>

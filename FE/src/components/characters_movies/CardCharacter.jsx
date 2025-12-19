@@ -16,8 +16,15 @@ export default function CardCharacter({ character }) {
   }, [character.serie_nombre]);
 
   return (
-    <div className="card" style={{ width: '18rem', backgroundColor: 'black' }}>
-      <div className="card-body">
+    <div className="card" style={{ 
+      width: '18rem', 
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div className="card-body" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <h6 className="text-white">{character.personaje_nombre}</h6>
 
         <img

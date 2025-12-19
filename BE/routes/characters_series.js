@@ -36,6 +36,21 @@ router.get('/name/:name', function(req, res, next) {
     });
 });
 
+// Buscar personajes por texto parcial
+router.get('/search/:query', async (req, res) => {
+  try {
+    const { query } = req.params;
+
+    const characters = await Character_Serie.find({
+      name: { $regex: query, $options: 'i' }
+    }).limit(20);
+
+    res.json(characters);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Create new character
 router.post('/', function(req, res, next) {
   Character_Serie.create(req.body)

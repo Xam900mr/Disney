@@ -51,7 +51,7 @@ router.get('/search/:query', async (req, res) => {
   try {
     const { query } = req.params;
 
-    const series = await Series.find({
+    const series = await Serie.find({
       title: { $regex: query, $options: 'i' }
     }).limit(20);
 

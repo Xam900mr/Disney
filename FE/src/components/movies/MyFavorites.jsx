@@ -6,8 +6,20 @@ import { AiFillEye, AiOutlineDelete } from "react-icons/ai";
 
 import { getMyfavorites, deleteFavorites } from "../../utils/apicall.js";
 import { getDateInStrFormat } from "../../utils/utils.js";
+import MyImgLogin from "../../images/micky.gif";
 
 import Header from '../Header.jsx';
+
+import MyImgFondo from "../../images/fondo.gif";
+
+const bgStyle = {
+  minHeight: "100vh",
+  backgroundImage: `url(${MyImgFondo})`,
+  backgroundSize: "cover",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
 
 export default function MyMovieList(){
 
@@ -45,13 +57,13 @@ export default function MyMovieList(){
             return (
                 <Row className="justify-content-center">
                   <Col>
-                    <div className="card" style={{ backgroundColor: 'black' }}>
+                    <div className="card" style={{ backgroundColor: '#8e9aaf' }}>
                       <div className="card-body">
                           <Row>
                             <Col xs="2"><img src={m.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
                             <Col xs="8" className="text-white">
                                       <h6 className="text-white">{m.title}</h6>
-                                      <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
+                                      <span style={{ color: '#a4c3b2' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
                                       Year: {m.year}<br/>
                                       Director: {m.director}<br/>
                                       Popularity: {m.imdb_rating}<br/>
@@ -80,13 +92,13 @@ export default function MyMovieList(){
             return (
                 <Row className="justify-content-center">
                   <Col>
-                    <div className="card" style={{ backgroundColor: 'black' }}>
+                    <div className="card" style={{ backgroundColor: '#8e9aaf' }}>
                       <div className="card-body">
                           <Row>
                             <Col xs="2"><img src={s.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
                             <Col xs="8" className="text-white">
                                       <h6 className="text-white">{s.title}</h6>
-                                      <span style={{ color: '#F1C61A' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
+                                      <span style={{ color: '#a4c3b2' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
                                       Years: {s.year_start} - {(s.year_end && s.year_end !== 0) ? s.year_end : 'En emision'}<br/>
                                       Popularity: {s.imdb_rating}<br/>
                                       Plot: {s.plot}
@@ -113,23 +125,32 @@ export default function MyMovieList(){
     }
    
     return favorites === null ? 
-      (<div>
+      (<div style={bgStyle}>
         <Row>
           <Col>
             <Header/>
           </Col>
         </Row>
-        <Row><h1 className="text-white">Loading...</h1></Row>
+        <Row className="justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+          <Col xs="12" className="d-flex justify-content-center">
+            <img
+              src={MyImgLogin}
+              alt="Cargando"
+              style={{ width: 350, height: "auto" }}
+            />
+          </Col>
+        </Row>
       </div>) 
       : (
-      <div>
+      <div style={bgStyle}>
         <Row>
           <Col>
             <Header/>
           </Col>
         </Row> 
+        <br/>
         <Container>
-            <Table dark>
+            <Table>
               <tbody>
                 {favorites.map((favorite, idx) => {
                   return (

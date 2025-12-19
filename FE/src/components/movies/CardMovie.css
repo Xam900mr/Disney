@@ -1,7 +1,17 @@
 .movie-card {
   width: 18rem;
-  background-color: black;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(142, 154, 175, 0.85);
+  backdrop-filter: blur(8px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card .card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .movie-card:hover {

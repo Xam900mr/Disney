@@ -48,14 +48,18 @@ export const searchSeries = (query) =>
 
 // Busqueda unificada
 export const searchAll = async (query) => {
-  const [movies, series] = await Promise.all([
+  const [movies, series, charactersMovies, charactersSeries] = await Promise.all([
     API.get(`/movies/search/${query}`).then(r => r.data),
-    API.get(`/series/search/${query}`).then(r => r.data)
+    API.get(`/series/search/${query}`).then(r => r.data),
+    API.get(`/characters_movies/search/${query}`).then(r => r.data),
+    API.get(`/characters_series/search/${query}`).then(r => r.data)
   ]);
 
   return [
     ...movies.map(m => ({ ...m, type: 'movie' })),
-    ...series.map(s => ({ ...s, type: 'series' }))
+    ...series.map(s => ({ ...s, type: 'series' })),
+    ...charactersMovies.map(c => ({ ...c, type: 'character_movie' })),
+    ...charactersSeries.map(c => ({ ...c, type: 'character_series' }))
   ];
 };
 
