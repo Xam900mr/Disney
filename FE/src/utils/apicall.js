@@ -8,6 +8,8 @@ export {
     getMyfavorites,
     deleteFavorites,
     googleSignIn,
+    loginUser,
+    registerUser,
     getAuthHeader,
     getAllSeries,
     getSingleSerie,
@@ -86,6 +88,25 @@ function googleSignIn(email, name) {
         email,
         name
     }).then(result => result.data);
+}
+
+function loginUser(username, password) {
+    return API.post('/users/login', {
+        username,
+        password
+    }).then(result => result.data);
+}
+
+function registerUser(userData) {
+    // Mapear firstname a name para coincidir con el modelo backend
+    const mappedData = {
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        name: userData.firstname,
+        lastname: userData.lastname
+    };
+    return API.post('/users', mappedData).then(result => result.data);
 }
 
 function getAuthHeader() {

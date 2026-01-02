@@ -1,7 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
+import Home from './Home';
 import Login from './Login';
+import ProtectedRoute from './ProtectedRoute';
 import MovieList from './movies/MovieList';
 import ShowMovie from './movies/ShowMovie';
 import MyFavorites from './movies/MyFavorites';
@@ -17,16 +19,53 @@ function App() {
     <Router basename={import.meta.env.VITE_PUBLIC_URL}>
       <div>
         <Routes>
-          <Route path="/" exact element={<Login/>} />
-          <Route path="/movies" element={<MovieList/>} />
-          <Route path="/series" element={<SeriesList/>} />
-          <Route path="/characters_movies" element={<CMoviesList/>} />
-          <Route path="/characters_series" element={<CSeriesList/>} />
-          <Route path="/movies/details/:id" element={<ShowMovie/>} />
-          <Route path="/series/details/:id" element={<ShowSerie/>} />
-           <Route path="/characters_movies/details/:id" element={<ShowCMovie/>} />
-          <Route path="/characters_series/details/:id" element={<ShowCSerie/>} />
-          <Route path="/favorites" element={<MyFavorites/>} />
+          <Route path="/" element={<Home/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/movies" element={
+            <ProtectedRoute>
+              <MovieList/>
+            </ProtectedRoute>
+          } />
+          <Route path="/series" element={
+            <ProtectedRoute>
+              <SeriesList/>
+            </ProtectedRoute>
+          } />
+          <Route path="/characters_movies" element={
+            <ProtectedRoute>
+              <CMoviesList/>
+            </ProtectedRoute>
+          } />
+          <Route path="/characters_series" element={
+            <ProtectedRoute>
+              <CSeriesList/>
+            </ProtectedRoute>
+          } />
+          <Route path="/movies/details/:id" element={
+            <ProtectedRoute>
+              <ShowMovie/>
+            </ProtectedRoute>
+          } />
+          <Route path="/series/details/:id" element={
+            <ProtectedRoute>
+              <ShowSerie/>
+            </ProtectedRoute>
+          } />
+          <Route path="/characters_movies/details/:id" element={
+            <ProtectedRoute>
+              <ShowCMovie/>
+            </ProtectedRoute>
+          } />
+          <Route path="/characters_series/details/:id" element={
+            <ProtectedRoute>
+              <ShowCSerie/>
+            </ProtectedRoute>
+          } />
+          <Route path="/favorites" element={
+            <ProtectedRoute>
+              <MyFavorites/>
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>

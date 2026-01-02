@@ -42,8 +42,9 @@ export default function Header() {
 
   const onLogout = () => {
     googleLogout();
+    localStorage.clear();
     sessionStorage.clear();
-    navigate('/');
+    navigate('/login');
   };
 
   useEffect(() => {
