@@ -86,7 +86,11 @@ router.post('/login', function(req, res, next) {
       });
     })
     .then(function(token) {
-      return res.status(200).send({ message: 'Autenticación exitosa.', token: token });
+      return res.status(200).json({ 
+        message: 'Autenticación exitosa.',
+        token: token,
+        user: { id: user._id, username: user.username, email: user.email, name: user.name }
+      });
     })
     .catch(function(err) {
       if (err && err.code === 404) return res.status(404).send(err.message);

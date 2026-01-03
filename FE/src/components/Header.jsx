@@ -111,7 +111,7 @@ export default function Header() {
     }
   };
 
-  if (!sessionStorage.getItem('email')) return null;
+  if (!localStorage.getItem('token')) return null;
 
   return (
     <Navbar color="danger" expand="md" className="px-3">
@@ -225,7 +225,7 @@ export default function Header() {
 
         <NavbarText>
           <span className="text-white me-2">
-            {sessionStorage.getItem('name')}
+            {localStorage.getItem('name')}
           </span>
           <button className="btn btn-dark" onClick={onLogout}>
             Cerrar sesión

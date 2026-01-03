@@ -1,0 +1,89 @@
+/* Home.css */
+
+.home-card-content {
+  color: white;
+}
+
+.home-right-content h2 {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  color: white;
+}
+
+.home-right-content p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0;
+}
+
+.home-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-button {
+  width: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.home-button-primary {
+  background-color: white !important;
+  color: #0F1111 !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 18px 30px;
+  border-radius: 8px;
+  border: none !important;
+}
+
+.home-button-primary:hover {
+  background-color: #e6e6e6 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.home-button-secondary {
+  background-color: transparent !important;
+  color: white !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 18px 30px;
+  border-radius: 8px;
+  border: 2px solid white !important;
+}
+
+.home-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-right-content h2 {
+    font-size: 2.2rem;
+  }
+
+  .home-right-content p {
+    font-size: 1.1rem;
+  }
+
+  .home-button {
+    font-size: 1rem;
+    padding: 16px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-right-content h2 {
+    font-size: 1.8rem;
+  }
+
+  .home-right-content p {
+    font-size: 1rem;
+  }
+}

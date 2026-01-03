@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
-  Row,
-  Col,
-  Container,
   Alert,
   Card,
   CardTitle,
@@ -46,7 +43,8 @@ const cardStyle = {
 };
 
 export default function Login() {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const [isLogin, setIsLogin] = useState(!location.state?.isRegister);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [formData, setFormData] = useState({
@@ -86,6 +84,8 @@ export default function Login() {
       
       if (response && response.token) {
         localStorage.setItem("token", response.token);
+        localStorage.setItem("name", response.user.name);
+        localStorage.setItem("username", response.user.username);
         setMessage({
           type: "success",
           text: "¡Inicio de sesión exitoso!",
@@ -174,6 +174,8 @@ export default function Login() {
 
       if (response && response.token) {
         localStorage.setItem("token", response.token);
+        localStorage.setItem("name", response.user.name);
+        localStorage.setItem("username", response.user.email);
         setMessage({
           type: "success",
           text: `¡Bienvenido ${response.user.name}!`,
@@ -201,7 +203,7 @@ export default function Login() {
   };
 
   return (
-    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={config.clientID}>
       <div style={wrapperStyle}>
         <Card style={cardStyle} className="p-4">
           <CardTitle tag="h3" className="text-center mb-4">
@@ -258,13 +260,15 @@ export default function Login() {
                 <small className="text-muted">O</small>
               </div>
 
-              <div className="mb-3">
-                <GoogleLogin
-                  onSuccess={handleLoginSuccess}
-                  onError={handleLoginError}
-                  text="signin"
-                  size="large"
-                />
+              <div className="mb-3 d-flex justify-content-center">
+                <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                  <GoogleLogin
+                    onSuccess={handleLoginSuccess}
+                    onError={handleLoginError}
+                    text="signin"
+                    size="large"
+                  />
+                </div>
               </div>
 
               <CardText className="text-center">

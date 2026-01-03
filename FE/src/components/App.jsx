@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-do
 
 import Home from './Home';
 import Login from './Login';
+import Header from './Header';
 import ProtectedRoute from './ProtectedRoute';
 import MovieList from './movies/MovieList';
 import ShowMovie from './movies/ShowMovie';
