@@ -1,23 +1,109 @@
-/* Home.css */
+/* ============================================
+   HOME - WRAPPER Y LAYOUT PRINCIPAL
+   ============================================ */
 
-.home-card-content {
-  color: white;
+.home-wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow: hidden;
 }
 
-.home-right-content h2 {
-  font-size: 3rem;
+/* ============================================
+   RECUADRO NEGRO PRINCIPAL
+   ============================================ */
+
+.home-card {
+  position: relative;
+  width: min(550px, 45vw);
+  height: 100vh;
+  padding: 0 60px;
+  margin: 0;
+  background: black;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  box-sizing: border-box;
+  z-index: 2;
+  /* Difuminado suave en el lado izquierdo */
+  box-shadow: 
+    -150px 0 150px 80px rgba(0, 0, 0, 0.7),
+    -80px 0 100px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   GRADIENTE DE TRANSICIÓN
+   ============================================ */
+
+.home-gradient-overlay {
+  position: absolute;
+  top: 0;
+  right: min(550px, 45vw);
+  width: 250px;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.4) 40%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   CONTENIDO - LOGO Y TEXTOS
+   ============================================ */
+
+.home-content-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.home-logo {
+  width: 200px;
+  height: auto;
+}
+
+.home-title {
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 24px;
   line-height: 1.1;
   color: white;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.home-right-content p {
-  font-size: 1.2rem;
+.home-description {
+  font-size: 1.25rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
 }
+
+/* ============================================
+   BOTONES
+   ============================================ */
 
 .home-button-group {
   display: flex;
@@ -27,6 +113,10 @@
 
 .home-button {
   width: 100%;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 18px 30px;
+  border-radius: 8px;
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -34,10 +124,6 @@
 .home-button-primary {
   background-color: white !important;
   color: #0F1111 !important;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 18px 30px;
-  border-radius: 8px;
   border: none !important;
 }
 
@@ -50,10 +136,6 @@
 .home-button-secondary {
   background-color: transparent !important;
   color: white !important;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 18px 30px;
-  border-radius: 8px;
   border: 2px solid white !important;
 }
 
@@ -62,13 +144,53 @@
   transform: translateY(-2px);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .home-right-content h2 {
-    font-size: 2.2rem;
+.home-divider {
+  text-align: center;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .home-card {
+    width: min(600px, 55vw);
+    padding: 0 50px;
   }
 
-  .home-right-content p {
+  .home-gradient-overlay {
+    right: min(600px, 55vw);
+  }
+
+  .home-title {
+    font-size: 1.8rem;
+  }
+
+  .home-description {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-card {
+    width: 90vw;
+    padding: 0 40px;
+  }
+
+  .home-gradient-overlay {
+    right: 90vw;
+    width: 150px;
+  }
+
+  .home-title {
+    font-size: 1.6rem;
+  }
+
+  .home-description {
     font-size: 1.1rem;
   }
 
@@ -76,14 +198,28 @@
     font-size: 1rem;
     padding: 16px 24px;
   }
+
+  .home-logo {
+    width: 150px;
+  }
 }
 
 @media (max-width: 480px) {
-  .home-right-content h2 {
-    font-size: 1.8rem;
+  .home-card {
+    padding: 0 30px;
+    gap: 24px;
   }
 
-  .home-right-content p {
+  .home-title {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+  }
+
+  .home-description {
     font-size: 1rem;
+  }
+
+  .home-logo {
+    width: 120px;
   }
 }

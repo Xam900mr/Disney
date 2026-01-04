@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {
@@ -14,14 +14,13 @@ import {
 } from "reactstrap";
 
 import { jwtDecode } from "jwt-decode";
-
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import axios from "axios";
 
 import config from "../config.js";
 import { googleSignIn, loginUser, registerUser } from "../utils/apicall.js";
-
-import MyImgLogin from "../images/DISNEY.png";
+import MyImgLogin from "../images/fondoLogin.png";
 
 const wrapperStyle = {
   minHeight: "100vh",
@@ -40,26 +39,32 @@ const cardStyle = {
   width: "100%",
   maxWidth: "450px",
   boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+  border: "1px solid rgba(255, 255, 255, 0.2)",
+  backgroundColor: "rgba(255, 255, 255, 0.2)",
+  backdropFilter: "blur(50px)",
 };
 
-export default function Login() {
+// ============================================
+// COMPONENTE INTERNO CON ACCESO AL PROVIDER
+// ============================================
+function LoginForm() {
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const [isLogin, setIsLogin] = useState(!location.state?.isRegister);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    /*confirmPassword: "",*/
     firstname: "",
     lastname: "",
   });
 
-  const navigate = useNavigate();
-
   useEffect(() => {
-    // Check if already logged in
     const token = localStorage.getItem("token");
     if (token) {
       navigate("/movies");
@@ -110,15 +115,14 @@ export default function Login() {
     setLoading(true);
     setMessage(null);
 
-    // Validaciones
-    if (formData.password !== formData.confirmPassword) {
+    /*if (formData.password !== formData.confirmPassword) {
       setMessage({
         type: "danger",
         text: "Las contraseñas no coinciden",
       });
       setLoading(false);
       return;
-    }
+    }*/
 
     if (formData.password.length < 6) {
       setMessage({
@@ -149,7 +153,7 @@ export default function Login() {
             username: "",
             email: "",
             password: "",
-            confirmPassword: "",
+            /*confirmPassword: "",*/
             firstname: "",
             lastname: "",
           });
@@ -166,77 +170,103 @@ export default function Login() {
     }
   };
 
-  const handleLoginSuccess = async (credentialResponse) => {
-    setLoading(true);
-    try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      const response = await googleSignIn(decoded.email, decoded.name);
+  // AHORA googleLogin ESTÁ DENTRO DEL PROVIDER
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        // 1. Obtener info del usuario con el access_token
+        const userInfoResponse = await axios.get(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
+          }
+        );
 
-      if (response && response.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("name", response.user.name);
-        localStorage.setItem("username", response.user.email);
+        const userInfo = userInfoResponse.data;
+        
+        // 2. Enviar al backend
+        const response = await googleSignIn(userInfo.email, userInfo.name);
+
+        if (response && response.token) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("name", response.user.name);
+          localStorage.setItem("username", response.user.email);
+          setMessage({
+            type: "success",
+            text: `¡Bienvenido ${response.user.name}!`,
+          });
+          setTimeout(() => {
+            navigate("/movies");
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("Google login error:", error);
         setMessage({
-          type: "success",
-          text: `¡Bienvenido ${response.user.name}!`,
+          type: "danger",
+          text: "Error al iniciar sesión con Google",
         });
-        setTimeout(() => {
-          navigate("/movies");
-        }, 1000);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Google login error:", error);
+    },
+    onError: () => {
       setMessage({
         type: "danger",
         text: "Error al iniciar sesión con Google",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  });
 
-  const handleLoginError = () => {
-    setMessage({
-      type: "danger",
-      text: "Error al iniciar sesión con Google",
+  const resetForm = () => {
+    setMessage(null);
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      /*confirmPassword: "",*/
+      firstname: "",
+      lastname: "",
     });
   };
 
   return (
-    <GoogleOAuthProvider clientId={config.clientID}>
-      <div style={wrapperStyle}>
-        <Card style={cardStyle} className="p-4">
-          <CardTitle tag="h3" className="text-center mb-4">
-            🎬 Disney App
-          </CardTitle>
+    <div style={wrapperStyle}>
+      <Card style={cardStyle} className="p-4">
+        <CardTitle tag="h3" className="text-center mb-4">
+          🏰 Disney App
+        </CardTitle>
+        
+        {message && (
+          <Alert color={message.type} className="mb-3">
+            {message.text}
+          </Alert>
+        )}
 
-          {message && (
-            <Alert color={message.type} className="mb-3">
-              {message.text}
-            </Alert>
-          )}
+        {isLogin ? (
+          // LOGIN FORM
+          <Form onSubmit={handleLoginSubmit}>
+            <FormGroup>
+              <Label for="username">Nombre de usuario</Label>
+              <Input
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Ingresa tu usuario"
+                value={formData.username}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
 
-          {isLogin ? (
-            // LOGIN FORM
-            <Form onSubmit={handleLoginSubmit}>
-              <FormGroup>
-                <Label for="username">Usuario</Label>
+            <FormGroup>
+              <Label for="password">Contraseña</Label>
+              <div style={{ position: "relative" }}>
                 <Input
-                  type="text"
-                  name="username"
-                  id="username"
-                  placeholder="Ingresa tu usuario"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="password">Contraseña</Label>
-                <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   id="password"
                   placeholder="Ingresa tu contraseña"
@@ -245,179 +275,212 @@ export default function Login() {
                   required
                   disabled={loading}
                 />
-              </FormGroup>
-
-              <Button
-                color="primary"
-                block
-                className="mb-3"
-                disabled={loading}
-              >
-                {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-              </Button>
-
-              <div className="text-center my-3">
-                <small className="text-muted">O</small>
-              </div>
-
-              <div className="mb-3 d-flex justify-content-center">
-                <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                  <GoogleLogin
-                    onSuccess={handleLoginSuccess}
-                    onError={handleLoginError}
-                    text="signin"
-                    size="large"
-                  />
-                </div>
-              </div>
-
-              <CardText className="text-center">
-                ¿No tienes cuenta?{" "}
-                <Button
-                  color="link"
-                  onClick={() => {
-                    setIsLogin(false);
-                    setMessage(null);
-                    setFormData({
-                      username: "",
-                      email: "",
-                      password: "",
-                      confirmPassword: "",
-                      firstname: "",
-                      lastname: "",
-                    });
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "25px",
+                    color: "#666",
                   }}
-                  style={{ padding: 0 }}
+                  tabIndex="-1"
                 >
-                  Créate una
-                </Button>
-              </CardText>
-            </Form>
-          ) : (
-            // REGISTER FORM
-            <Form onSubmit={handleRegisterSubmit}>
-              <FormGroup>
-                <Label for="firstname">Nombre</Label>
-                <Input
-                  type="text"
-                  name="firstname"
-                  id="firstname"
-                  placeholder="Tu nombre"
-                  value={formData.firstname}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
+                  {showPassword ? "🙉" : "🙈"}
+                </button>
+              </div>
+            </FormGroup>
 
-              <FormGroup>
-                <Label for="lastname">Apellido</Label>
-                <Input
-                  type="text"
-                  name="lastname"
-                  id="lastname"
-                  placeholder="Tu apellido"
-                  value={formData.lastname}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
+            <Button style={{
+                  backgroundColor: "#6366f1",
+                  color: "white",
+                  border: "1px solid #0957f2ff",
+                  borderRadius: "20px",
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  height: "40px",
+                  marginTop: "30px"
+                }} block className="mb-3" disabled={loading}>
+              {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+            </Button>
 
-              <FormGroup>
-                <Label for="reg-username">Usuario</Label>
-                <Input
-                  type="text"
-                  name="username"
-                  id="reg-username"
-                  placeholder="Elige un usuario"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
+            <div className="text-center my-4" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "15px" }}>
+              <div style={{ flex: 1, height: "4px", backgroundColor: "#fff", borderRadius: "2px"}}></div>
+              <small style={{ color: "#fff" }}>O</small>
+              <div style={{ flex: 1, height: "4px", backgroundColor: "#fff", borderRadius: "2px" }}></div>
+            </div>
 
-              <FormGroup>
-                <Label for="reg-email">Email</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  id="reg-email"
-                  placeholder="Tu correo electrónico"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="reg-password">Contraseña</Label>
-                <Input
-                  type="password"
-                  name="password"
-                  id="reg-password"
-                  placeholder="Mínimo 6 caracteres"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="confirmPassword">Confirmar Contraseña</Label>
-                <Input
-                  type="password"
-                  name="confirmPassword"
-                  id="confirmPassword"
-                  placeholder="Confirma tu contraseña"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading}
-                />
-              </FormGroup>
-
+            <div className="mb-3 d-flex justify-content-center">
               <Button
-                color="success"
                 block
-                className="mb-3"
                 disabled={loading}
+                onClick={() => googleLogin()}
+                style={{
+                  backgroundColor: "white",
+                  color: "#5f6368",
+                  border: "1px solid #dadce0",
+                  borderRadius: "20px",
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  height: "40px"
+                }}
               >
-                {loading ? "Creando cuenta..." : "Crear Cuenta"}
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google"
+                  style={{ width: "18px", height: "18px" }}
+                />
+                Google
               </Button>
+            </div>
 
-              <CardText className="text-center">
-                ¿Ya tienes cuenta?{" "}
-                <Button
-                  color="link"
-                  onClick={() => {
-                    setIsLogin(true);
-                    setMessage(null);
-                    setFormData({
-                      username: "",
-                      email: "",
-                      password: "",
-                      confirmPassword: "",
-                      firstname: "",
-                      lastname: "",
-                    });
-                  }}
-                  style={{ padding: 0 }}
-                >
-                  Inicia sesión aquí
-                </Button>
-              </CardText>
-            </Form>
-          )}
+            <CardText className="text-center" style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+              ¿No tienes cuenta?{" "}
+              <Button
+                color="link"
+                onClick={() => {
+                  setIsLogin(false);
+                  resetForm();
+                }}
+                style={{ padding: 0, color: "#fff", fontWeight: "700", textDecoration: "none", marginLeft: "5px", fontSize: "18px", height: "auto", lineHeight: "1" }}
+              >
+                Créate una
+              </Button>
+            </CardText>
+          </Form>
+        ) : (
+          // REGISTER FORM
+          <Form onSubmit={handleRegisterSubmit}>
+            <FormGroup>
+              <Label for="firstname">Nombre</Label>
+              <Input
+                type="text"
+                name="firstname"
+                id="firstname"
+                placeholder="Tu nombre"
+                value={formData.firstname}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
 
-          <CardText className="text-center text-muted small mt-4">
-            © 2024 Disney App. All rights reserved.
-          </CardText>
-        </Card>
-      </div>
+            <FormGroup>
+              <Label for="lastname">Apellido</Label>
+              <Input
+                type="text"
+                name="lastname"
+                id="lastname"
+                placeholder="Tu apellido"
+                value={formData.lastname}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="reg-username">Nombre de usuario</Label>
+              <Input
+                type="text"
+                name="username"
+                id="reg-username"
+                placeholder="Elige un nombre de usuario"
+                value={formData.username}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="reg-email">Email</Label>
+              <Input
+                type="email"
+                name="email"
+                id="reg-email"
+                placeholder="Tu correo electrónico"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="reg-password">Contraseña</Label>
+              <Input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="reg-password"
+                placeholder="Mínimo 6 caracteres"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+              />
+            </FormGroup>
+
+            <Button 
+            style={{
+                  backgroundColor: "#6366f1",
+                  color: "white",
+                  border: "1px solid #0957f2ff",
+                  borderRadius: "20px",
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "10px",
+                  height: "40px",
+                  marginTop: "30px"
+                }}
+            color="success" block className="mb-3" disabled={loading}>
+              {loading ? "Creando cuenta..." : "Crear Cuenta"}
+            </Button>
+
+            <CardText className="text-center" style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+              ¿Ya tienes cuenta?
+              <Button
+                color="link"
+                onClick={() => {
+                  setIsLogin(true);
+                  resetForm();
+                }}
+                style={{ padding: 0, color: "white", fontWeight: "700", textDecoration: "none", marginLeft: "5px", fontSize: "18px", height: "auto", lineHeight: "1" }}
+              >
+                Inicia sesión aquí
+              </Button>
+            </CardText>
+          </Form>
+        )}
+
+        <CardText style={{ color: "#fff" }} className="text-center small mt-4">
+          © 2026 Disney App. All rights reserved.
+        </CardText>
+      </Card>
+    </div>
+  );
+}
+
+// ============================================
+// COMPONENTE PRINCIPAL CON PROVIDER
+// ============================================
+export default function Login() {
+  return (
+    <GoogleOAuthProvider clientId={config.clientID}>
+      <LoginForm />
     </GoogleOAuthProvider>
   );
 }

@@ -61,6 +61,8 @@ router.delete('/:id', tokenVerify,
 //Inicio de sesión
 router.post('/login', function(req, res, next) {
   debug("User login");
+  let authenticatedUser; // Variable para almacenar el usuario autenticado
+  
   User.findOne({ username: req.body.username })
     .then(function(user) {
       if (!user) return Promise.reject({ code: 404, message: 'Usuario no encontrado.' });
@@ -72,13 +74,13 @@ router.post('/login', function(req, res, next) {
         user.comparePassword(req.body.password, function(err, isMatch) {
           if (err) return reject(err);
           if (!isMatch) return reject({ code: 401, message: 'Contraseña incorrecta.' });
+          authenticatedUser = user; // Guardar el usuario autenticado
           resolve(user);
         });
       });
     })
     .then(function(user) {
       return new Promise(function(resolve, reject) {
-        //jwt.sign({ username: req.body.username }, process.env.TOKEN_SECRET, { expiresIn: 3600 * 4 }, function(err, token) {
         jwt.sign( { id: user._id, username: user.username, email: user.email },process.env.TOKEN_SECRET,{ expiresIn: 3600 * 4 }, function(err, token) {
         if (err) return reject(err);
           resolve(token);
@@ -89,7 +91,7 @@ router.post('/login', function(req, res, next) {
       return res.status(200).json({ 
         message: 'Autenticación exitosa.',
         token: token,
-        user: { id: user._id, username: user.username, email: user.email, name: user.name }
+        user: { id: authenticatedUser._id, username: authenticatedUser.username, email: authenticatedUser.email, name: authenticatedUser.name }
       });
     })
     .catch(function(err) {
