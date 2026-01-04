@@ -110,7 +110,7 @@ function registerUser(userData) {
 }
 
 function getAuthHeader() {
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
@@ -118,7 +118,6 @@ function getAuthHeader() {
 //Favoritos
 function addNewFavorites(email, movieId= null, seriesId = null){
     return API.post('/favorites', {
-        email,
         movieId,
         seriesId
     }, {
@@ -126,7 +125,7 @@ function addNewFavorites(email, movieId= null, seriesId = null){
     }).then(result => result.data);
 }
 function getMyfavorites(email) {
-    return API.get('/favorites/'+email, {
+    return API.get('/favorites', {
         headers: getAuthHeader()
     }).then(res => res.data);
 }

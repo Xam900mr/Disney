@@ -15,7 +15,7 @@ export default function CardSeries({ serie }) {
   const [favoriteId, setFavoriteId] = useState(null);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (!token || !serie?._id) return;
 
     checkFavorite(null, serie._id)
@@ -31,8 +31,9 @@ export default function CardSeries({ serie }) {
   const toggleFavorite = async () => {
     setLoading(true);
     try {
+      const email = localStorage.getItem('email');
       if (!isFav) {
-        const res = await addNewFavorites(null, null, serie._id);
+        const res = await addNewFavorites(email, null, serie._id);
         setIsFav(true);
         setFavoriteId(res._id);
       } else {

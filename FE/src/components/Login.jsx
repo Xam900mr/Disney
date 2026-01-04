@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 import {
   Alert,
   Card,
@@ -12,8 +11,6 @@ import {
   Label,
   Input,
 } from "reactstrap";
-
-import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from "axios";
@@ -21,31 +18,74 @@ import axios from "axios";
 import config from "../config.js";
 import { googleSignIn, loginUser, registerUser } from "../utils/apicall.js";
 import MyImgLogin from "../images/fondoLogin.png";
+import "./Home.css";
 
-const wrapperStyle = {
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "24px",
-  position: "relative",
-  backgroundImage: `url(${MyImgLogin})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
+// ============================================
+const MIN_PASSWORD_LENGTH = 6;
+const REDIRECT_DELAY = 1000;
+const REGISTER_SUCCESS_DELAY = 1500;
+
+const INITIAL_FORM_STATE = {
+  username: "",
+  email: "",
+  password: "",
+  firstname: "",
+  lastname: "",
 };
 
-const cardStyle = {
-  width: "100%",
-  maxWidth: "450px",
-  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-  border: "1px solid rgba(255, 255, 255, 0.2)",
-  backgroundColor: "rgba(255, 255, 255, 0.2)",
-  backdropFilter: "blur(50px)",
+const MESSAGES = {
+  loginSuccess: "¡Inicio de sesión exitoso!",
+  registerSuccess: "¡Cuenta creada exitosamente! Por favor, inicia sesión.",
+  passwordTooShort: `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
+  loginError: "Error al iniciar sesión",
+  registerError: "Error al crear la cuenta",
+  googleError: "Error al iniciar sesión con Google",
 };
 
 // ============================================
-// COMPONENTE INTERNO CON ACCESO AL PROVIDER
+const dynamicStyles = {
+  wrapper: {
+    backgroundImage: `url(${MyImgLogin})`,
+  },
+};
+
+// ============================================
+const PasswordToggle = ({ show, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="login-password-toggle"
+    tabIndex="-1"
+    aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+  >
+    {show ? "🙉" : "🙈"}
+  </button>
+);
+
+const Divider = ({ text = "O" }) => (
+  <div className="login-divider">
+    <div className="login-divider-line" />
+    <small className="login-divider-text">{text}</small>
+    <div className="login-divider-line" />
+  </div>
+);
+
+const GoogleButton = ({ onClick, loading }) => (
+  <Button
+    block
+    disabled={loading}
+    onClick={onClick}
+    className="login-google-button"
+  >
+    <img
+      src="https://developers.google.com/identity/images/g-logo.png"
+      alt="Google"
+      className="login-google-icon"
+    />
+    Google
+  </Button>
+);
+
 // ============================================
 function LoginForm() {
   const location = useLocation();
@@ -55,15 +95,9 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    /*confirmPassword: "",*/
-    firstname: "",
-    lastname: "",
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
 
+  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -71,14 +105,41 @@ function LoginForm() {
     }
   }, [navigate]);
 
+  // ============================================
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const resetForm = () => {
+    setMessage(null);
+    setFormData(INITIAL_FORM_STATE);
+  };
+
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+    resetForm();
+  };
+
+  const saveUserSession = (response) => {
+    localStorage.setItem("token", response.token);
+    localStorage.setItem("name", response.user.name);
+    const email = response.user.email || localStorage.getItem('email');
+    if (email) {
+      localStorage.setItem("email", email);
+      console.log('Email guardado:', email);
+    } else {
+      console.error('Email no disponible en la respuesta:', response.user);
+    }
+    localStorage.setItem("username", response.user.username || response.user.email);
+  };
+
+  const showSuccessAndRedirect = (text, delay = REDIRECT_DELAY) => {
+    setMessage({ type: "success", text });
+    setTimeout(() => navigate("/movies"), delay);
+  };
+
+  // ============================================
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -87,48 +148,29 @@ function LoginForm() {
     try {
       const response = await loginUser(formData.username, formData.password);
       
-      if (response && response.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("name", response.user.name);
-        localStorage.setItem("username", response.user.username);
-        setMessage({
-          type: "success",
-          text: "¡Inicio de sesión exitoso!",
-        });
-        setTimeout(() => {
-          navigate("/movies");
-        }, 1000);
+      if (response?.token) {
+        saveUserSession(response);
+        showSuccessAndRedirect(MESSAGES.loginSuccess);
       }
     } catch (error) {
       console.error("Login error:", error);
       setMessage({
         type: "danger",
-        text: error.response?.data || "Error al iniciar sesión",
+        text: error.response?.data || MESSAGES.loginError,
       });
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================================
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
 
-    /*if (formData.password !== formData.confirmPassword) {
-      setMessage({
-        type: "danger",
-        text: "Las contraseñas no coinciden",
-      });
-      setLoading(false);
-      return;
-    }*/
-
-    if (formData.password.length < 6) {
-      setMessage({
-        type: "danger",
-        text: "La contraseña debe tener al menos 6 caracteres",
-      });
+    if (formData.password.length < MIN_PASSWORD_LENGTH) {
+      setMessage({ type: "danger", text: MESSAGES.passwordTooShort });
       setLoading(false);
       return;
     }
@@ -143,99 +185,59 @@ function LoginForm() {
       });
 
       if (response) {
-        setMessage({
-          type: "success",
-          text: "¡Cuenta creada exitosamente! Por favor, inicia sesión.",
-        });
+        setMessage({ type: "success", text: MESSAGES.registerSuccess });
         setTimeout(() => {
           setIsLogin(true);
-          setFormData({
-            username: "",
-            email: "",
-            password: "",
-            /*confirmPassword: "",*/
-            firstname: "",
-            lastname: "",
-          });
-        }, 1500);
+          setFormData(INITIAL_FORM_STATE);
+        }, REGISTER_SUCCESS_DELAY);
       }
     } catch (error) {
       console.error("Register error:", error);
       setMessage({
         type: "danger",
-        text: error.response?.data?.message || "Error al crear la cuenta",
+        text: error.response?.data?.message || MESSAGES.registerError,
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // AHORA googleLogin ESTÁ DENTRO DEL PROVIDER
+  // ============================================
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       try {
-        // 1. Obtener info del usuario con el access_token
         const userInfoResponse = await axios.get(
           'https://www.googleapis.com/oauth2/v3/userinfo',
           {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
           }
         );
 
         const userInfo = userInfoResponse.data;
-        
-        // 2. Enviar al backend
         const response = await googleSignIn(userInfo.email, userInfo.name);
 
-        if (response && response.token) {
-          localStorage.setItem("token", response.token);
-          localStorage.setItem("name", response.user.name);
-          localStorage.setItem("username", response.user.email);
-          setMessage({
-            type: "success",
-            text: `¡Bienvenido ${response.user.name}!`,
-          });
-          setTimeout(() => {
-            navigate("/movies");
-          }, 1000);
+        if (response?.token) {
+          saveUserSession(response);
+          showSuccessAndRedirect(`¡Bienvenido ${response.user.name}!`);
         }
       } catch (error) {
         console.error("Google login error:", error);
-        setMessage({
-          type: "danger",
-          text: "Error al iniciar sesión con Google",
-        });
+        setMessage({ type: "danger", text: MESSAGES.googleError });
       } finally {
         setLoading(false);
       }
     },
     onError: () => {
-      setMessage({
-        type: "danger",
-        text: "Error al iniciar sesión con Google",
-      });
-    }
+      setMessage({ type: "danger", text: MESSAGES.googleError });
+    },
   });
 
-  const resetForm = () => {
-    setMessage(null);
-    setFormData({
-      username: "",
-      email: "",
-      password: "",
-      /*confirmPassword: "",*/
-      firstname: "",
-      lastname: "",
-    });
-  };
-
+  // ============================================
   return (
-    <div style={wrapperStyle}>
-      <Card style={cardStyle} className="p-4">
-        <CardTitle tag="h3" className="text-center mb-4">
+    <div className="login-wrapper" style={dynamicStyles.wrapper}>
+      <Card className="login-card">
+        <CardTitle tag="h3" className="login-title">
           🏰 Disney App
         </CardTitle>
         
@@ -246,7 +248,7 @@ function LoginForm() {
         )}
 
         {isLogin ? (
-          // LOGIN FORM
+          // ============================================
           <Form onSubmit={handleLoginSubmit}>
             <FormGroup>
               <Label for="username">Nombre de usuario</Label>
@@ -264,7 +266,7 @@ function LoginForm() {
 
             <FormGroup>
               <Label for="password">Contraseña</Label>
-              <div style={{ position: "relative" }}>
+              <div className="login-password-container">
                 <Input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -275,92 +277,38 @@ function LoginForm() {
                   required
                   disabled={loading}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "25px",
-                    color: "#666",
-                  }}
-                  tabIndex="-1"
-                >
-                  {showPassword ? "🙉" : "🙈"}
-                </button>
+                <PasswordToggle 
+                  show={showPassword} 
+                  onToggle={() => setShowPassword(!showPassword)} 
+                />
               </div>
             </FormGroup>
 
-            <Button style={{
-                  backgroundColor: "#6366f1",
-                  color: "white",
-                  border: "1px solid #0957f2ff",
-                  borderRadius: "20px",
-                  fontWeight: "500",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  height: "40px",
-                  marginTop: "30px"
-                }} block className="mb-3" disabled={loading}>
+            <Button 
+              className="login-submit-button" 
+              block 
+              disabled={loading}
+            >
               {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
             </Button>
 
-            <div className="text-center my-4" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "15px" }}>
-              <div style={{ flex: 1, height: "4px", backgroundColor: "#fff", borderRadius: "2px"}}></div>
-              <small style={{ color: "#fff" }}>O</small>
-              <div style={{ flex: 1, height: "4px", backgroundColor: "#fff", borderRadius: "2px" }}></div>
-            </div>
+            <Divider />
 
-            <div className="mb-3 d-flex justify-content-center">
-              <Button
-                block
-                disabled={loading}
-                onClick={() => googleLogin()}
-                style={{
-                  backgroundColor: "white",
-                  color: "#5f6368",
-                  border: "1px solid #dadce0",
-                  borderRadius: "20px",
-                  fontWeight: "500",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  height: "40px"
-                }}
-              >
-                <img
-                  src="https://developers.google.com/identity/images/g-logo.png"
-                  alt="Google"
-                  style={{ width: "18px", height: "18px" }}
-                />
-                Google
-              </Button>
-            </div>
+            <GoogleButton onClick={() => googleLogin()} loading={loading} />
 
-            <CardText className="text-center" style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+            <CardText className="login-toggle-text">
               ¿No tienes cuenta?{" "}
               <Button
                 color="link"
-                onClick={() => {
-                  setIsLogin(false);
-                  resetForm();
-                }}
-                style={{ padding: 0, color: "#fff", fontWeight: "700", textDecoration: "none", marginLeft: "5px", fontSize: "18px", height: "auto", lineHeight: "1" }}
+                onClick={toggleForm}
+                className="login-toggle-link"
               >
                 Créate una
               </Button>
             </CardText>
           </Form>
         ) : (
-          // REGISTER FORM
+          // ============================================
           <Form onSubmit={handleRegisterSubmit}>
             <FormGroup>
               <Label for="firstname">Nombre</Label>
@@ -433,32 +381,19 @@ function LoginForm() {
             </FormGroup>
 
             <Button 
-            style={{
-                  backgroundColor: "#6366f1",
-                  color: "white",
-                  border: "1px solid #0957f2ff",
-                  borderRadius: "20px",
-                  fontWeight: "500",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "10px",
-                  height: "40px",
-                  marginTop: "30px"
-                }}
-            color="success" block className="mb-3" disabled={loading}>
+              className="login-submit-button" 
+              block 
+              disabled={loading}
+            >
               {loading ? "Creando cuenta..." : "Crear Cuenta"}
             </Button>
 
-            <CardText className="text-center" style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+            <CardText className="login-toggle-text">
               ¿Ya tienes cuenta?
               <Button
                 color="link"
-                onClick={() => {
-                  setIsLogin(true);
-                  resetForm();
-                }}
-                style={{ padding: 0, color: "white", fontWeight: "700", textDecoration: "none", marginLeft: "5px", fontSize: "18px", height: "auto", lineHeight: "1" }}
+                onClick={toggleForm}
+                className="login-toggle-link"
               >
                 Inicia sesión aquí
               </Button>
@@ -466,7 +401,7 @@ function LoginForm() {
           </Form>
         )}
 
-        <CardText style={{ color: "#fff" }} className="text-center small mt-4">
+        <CardText className="login-footer">
           © 2026 Disney App. All rights reserved.
         </CardText>
       </Card>
@@ -474,8 +409,6 @@ function LoginForm() {
   );
 }
 
-// ============================================
-// COMPONENTE PRINCIPAL CON PROVIDER
 // ============================================
 export default function Login() {
   return (

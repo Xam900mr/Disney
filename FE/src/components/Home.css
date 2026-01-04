@@ -1,6 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 /* ============================================
-   HOME - WRAPPER Y LAYOUT PRINCIPAL
+   ESTILOS COMPARTIDOS - HOME Y LOGIN
    ============================================ */
+
+/* ============================================
+   WRAPPER COMÚN
+   ============================================ */
+
+.home-wrapper,
+.login-wrapper {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
 
 .home-wrapper {
   height: 100vh;
@@ -10,16 +25,19 @@
   justify-content: flex-end;
   padding: 0;
   margin: 0;
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   background-attachment: fixed;
-  overflow: hidden;
+}
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
 /* ============================================
-   RECUADRO NEGRO PRINCIPAL
+   HOME - RECUADRO NEGRO PRINCIPAL
    ============================================ */
 
 .home-card {
@@ -36,14 +54,13 @@
   gap: 32px;
   box-sizing: border-box;
   z-index: 2;
-  /* Difuminado suave en el lado izquierdo */
   box-shadow: 
     -150px 0 150px 80px rgba(0, 0, 0, 0.7),
     -80px 0 100px 50px rgba(0, 0, 0, 0.5);
 }
 
 /* ============================================
-   GRADIENTE DE TRANSICIÓN
+   HOME - GRADIENTE DE TRANSICIÓN
    ============================================ */
 
 .home-gradient-overlay {
@@ -63,7 +80,7 @@
 }
 
 /* ============================================
-   CONTENIDO - LOGO Y TEXTOS
+   HOME - CONTENIDO
    ============================================ */
 
 .home-content-header {
@@ -102,7 +119,30 @@
 }
 
 /* ============================================
-   BOTONES
+   LOGIN - CARD
+   ============================================ */
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 32px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(50px);
+  border-radius: 12px;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ============================================
+   HOME - BOTONES
    ============================================ */
 
 .home-button-group {
@@ -153,7 +193,205 @@
 }
 
 /* ============================================
-   RESPONSIVE
+   LOGIN - BOTONES
+   ============================================ */
+
+.login-submit-button {
+  background-color: #6366f1 !important;
+  color: white !important;
+  border: 1px solid #0957f2ff !important;
+  border-radius: 20px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  height: 40px !important;
+  margin-top: 30px !important;
+  margin-bottom: 16px !important;
+  padding: 18px 30px !important;
+  width: 100% !important;
+  transition: all 0.3s ease;
+}
+
+.login-submit-button:hover:not(:disabled) {
+  background-color: #5558e3 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.login-submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-google-button {
+  background-color: white !important;
+  color: #5f6368 !important;
+  border: 1px solid #dadce0 !important;
+  border-radius: 20px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  height: 40px !important;
+  margin-bottom: 16px !important;
+  width: 100% !important;
+  transition: all 0.3s ease;
+}
+
+.login-google-button:hover:not(:disabled) {
+  background-color: #f8f9fa !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-google-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   LOGIN - DIVIDER
+   ============================================ */
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 24px 0;
+}
+
+.login-divider-line {
+  flex: 1;
+  height: 4px;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.login-divider-text {
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   LOGIN - PASSWORD TOGGLE
+   ============================================ */
+
+.login-password-container {
+  position: relative;
+}
+
+.login-password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 25px;
+  color: #666;
+  padding: 0;
+  line-height: 1;
+  z-index: 10;
+}
+
+.login-password-toggle:hover {
+  opacity: 0.7;
+}
+
+.login-password-toggle:focus {
+  outline: none;
+}
+
+/* ============================================
+   LOGIN - TOGGLE FORM LINKS
+   ============================================ */
+
+.login-toggle-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: center;
+  margin-top: 16px;
+  color: #fff;
+}
+
+.login-toggle-link {
+  padding: 0 !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  margin-left: 5px !important;
+  font-size: 18px !important;
+  height: auto !important;
+  line-height: 1 !important;
+  background: none !important;
+  border: none !important;
+  transition: opacity 0.2s ease;
+}
+
+.login-toggle-link:hover {
+  opacity: 0.8;
+  text-decoration: underline !important;
+}
+
+/* ============================================
+   LOGIN - FOOTER
+   ============================================ */
+
+.login-footer {
+  color: #fff;
+  text-align: center;
+  font-size: 0.875rem;
+  margin-top: 24px;
+  opacity: 0.8;
+}
+
+/* ============================================
+   LOGIN - FORM GROUPS
+   ============================================ */
+
+.login-card .form-group {
+  margin-bottom: 20px;
+}
+
+.login-card label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.login-card .form-control {
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.login-card .form-control:focus {
+  border-color: #6366f1;
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  color: #fff;
+}
+
+.login-card .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.login-card .form-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   RESPONSIVE - HOME
    ============================================ */
 
 @media (max-width: 1024px) {
@@ -221,5 +459,533 @@
 
   .home-logo {
     width: 120px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - LOGIN
+   ============================================ */
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: 24px;
+    max-width: 100%;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .login-toggle-link {
+    font-size: 16px !important;
+  }
+
+  .login-submit-button,
+  .login-google-button {
+    height: 44px !important;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .login-wrapper {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 20px;
+  }
+
+  .login-divider-text {
+    font-size: 0.8rem;
+  }
+}
+
+
+/* ============================================
+   HEADER - FUENTE DISNEY
+   ============================================ */
+
+.header-navbar,
+.header-nav-link,
+.header-dropdown-toggle,
+.header-user-name {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   NAVBAR PRINCIPAL
+   ============================================ */
+
+.header-navbar {
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%) !important;
+  padding: 0.5rem 1.5rem !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+
+.header-logo-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.header-logo-button:hover {
+  transform: scale(1.05);
+}
+
+.header-logo-button:focus {
+  outline: none;
+}
+
+.header-logo {
+  height: 55px;
+  margin-right: 5px;
+}
+
+/* ============================================
+   NAV ITEMS
+   ============================================ */
+
+.header-nav-link-wrapper {
+  text-decoration: none;
+}
+
+.header-nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px;
+  margin-right: 0.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.header-nav-link:hover,
+.header-nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff !important;
+}
+
+/* ============================================
+   DROPDOWN PERSONAJES
+   ============================================ */
+
+.header-dropdown {
+  margin-right: 0.25rem;
+}
+
+.header-dropdown-toggle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+}
+
+.header-dropdown-toggle::after {
+  margin-left: 0.5em;
+  transition: transform 0.3s ease;
+}
+
+.header-dropdown:hover .header-dropdown-toggle,
+.header-dropdown.active .header-dropdown-toggle {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.header-dropdown.show .header-dropdown-toggle::after {
+  transform: rotate(180deg);
+}
+
+.header-dropdown-menu {
+  background: #1a1f2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  margin-top: 0.5rem !important;
+  padding: 0.5rem 0;
+  min-width: 160px;
+}
+
+.header-dropdown-item {
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.header-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important;
+}
+
+/* ============================================
+   ACTIONS (Search, User, Logout)
+   ============================================ */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ============================================
+   SEARCH BUTTON (LUPA)
+   ============================================ */
+
+.header-search-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-search-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.header-search-button:focus {
+  outline: none;
+}
+
+/* ============================================
+   SEARCH OVERLAY (PANTALLA COMPLETA)
+   ============================================ */
+
+.header-search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 5rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.header-search-overlay-content {
+  width: 100%;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.header-search-overlay-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.header-search-icon {
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
+.header-search-overlay-input {
+  background: transparent !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-size: 1.25rem !important;
+  padding: 0 !important;
+  flex: 1;
+  box-shadow: none !important;
+}
+
+.header-search-overlay-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.header-search-overlay-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.header-search-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.header-search-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   SEARCH RESULTS
+   ============================================ */
+
+.header-search-results {
+  max-height: 60vh;
+  overflow-y: auto;
+  background: rgba(26, 31, 46, 0.95);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-search-results::-webkit-scrollbar {
+  width: 8px;
+}
+
+.header-search-results::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.header-search-results::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.header-search-results::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.header-search-message {
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-size: 1rem;
+}
+
+.header-search-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-search-item:last-child {
+  border-bottom: none;
+}
+
+.header-search-item:hover,
+.header-search-item.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.header-search-item-image {
+  width: 50px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header-search-item-info {
+  margin-left: 1rem;
+  flex: 1;
+}
+
+.header-search-item-title {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.header-search-item-type {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.search-highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ============================================
+   USER PROFILE
+   ============================================ */
+
+.header-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 0.4rem 0.75rem 0.4rem 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-user-profile:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.header-user-profile:focus {
+  outline: none;
+}
+
+.header-user-name {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.header-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   LOGOUT BUTTON (ICONO APAGAR)
+   ============================================ */
+
+.header-logout-button {
+  background: rgba(255, 87, 108, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff576c;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-logout-button:hover {
+  background: rgba(255, 87, 108, 0.3);
+  transform: scale(1.1) rotate(180deg);
+}
+
+.header-logout-button:focus {
+  outline: none;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 991px) {
+  .header-navbar {
+    padding: 0.5rem 1rem !important;
+  }
+
+  .header-logo {
+    height: 45px;
+  }
+
+  .header-actions {
+    margin-top: 1rem;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .header-nav-link,
+  .header-dropdown-toggle {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-search-overlay-content {
+    padding: 0 1rem;
+  }
+
+  .header-search-overlay {
+    padding-top: 3rem;
+  }
+
+  .header-user-name {
+    display: none;
+  }
+
+  .header-user-profile {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-logo {
+    height: 40px;
+  }
+
+  .header-nav-link,
+  .header-dropdown-toggle {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.75rem !important;
+  }
+
+  .header-search-overlay-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .header-search-overlay-input {
+    font-size: 1rem !important;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
+  }
+
+  .header-search-button,
+  .header-logout-button {
+    width: 36px;
+    height: 36px;
   }
 }
