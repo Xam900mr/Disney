@@ -217,7 +217,7 @@ export default function MyMovieList(){
           </Col>
         </Row> 
         <br/>
-        <Container>
+        <Container style={{ width: '100%', maxWidth: '100%', padding: '0 20px', boxSizing: 'border-box' }}>
             <Table>
               <tbody>
                 {currentFavorites.map((favorite, idx) => {

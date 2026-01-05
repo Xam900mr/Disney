@@ -32,12 +32,14 @@ function MovieCarousel(args) {
 
   const sectionStyle = {
     width: '100%',
+    boxSizing: 'border-box',
     background: 'linear-gradient(180deg, rgba(15, 20, 31, 0.95) 0%, rgba(26, 31, 46, 0.98) 50%, rgba(15, 20, 31, 0.95) 100%)',
-    padding: '40px 0',
+    padding: '40px 20px',
     marginBottom: '40px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
     position: 'relative',
     borderRadius: '20px',
+    overflow: 'hidden',
   };
 
   const carouselContainerStyle = {
@@ -72,7 +74,7 @@ function MovieCarousel(args) {
     bottom: 0,
     left: 0,
     right: 0,
-    height: '70%',
+    height: '60%',
     background: 'linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 40%, transparent 100%)',
     pointerEvents: 'none',
   };

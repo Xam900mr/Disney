@@ -122,7 +122,7 @@ export default function MovieList() {
           <Header />
         </Col>
       </Row>
-      <Container>
+      <Container style={{ width: '100%', maxWidth: '100%', padding: '0 20px', boxSizing: 'border-box' }}>
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
           <MovieCarousel />
         </div>

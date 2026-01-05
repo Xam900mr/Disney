@@ -114,8 +114,8 @@ export default function CharacterList() {
           <Header />
         </Col>
       </Row>
-      <Container>
-        <Row>
+      <Container style={{ width: '100%', maxWidth: '100%', padding: '0 20px', boxSizing: 'border-box' }}>
+        <Row style={{ marginTop: '30px' }}>
           {currentCharacters.map((character, index) => {
             return (
               <Col key={character.id || character._id || character.personaje_nombre || index} xs="12" sm="6" md="4" lg="3" className="mb-4 d-flex">

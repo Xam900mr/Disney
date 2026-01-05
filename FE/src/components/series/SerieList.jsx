@@ -115,7 +115,7 @@ export default function SeriesList() {
           <Header />
         </Col>
       </Row>
-      <Container>
+      <Container style={{ width: '100%', maxWidth: '100%', padding: '0 20px', boxSizing: 'border-box' }}>
           <p></p>
         <Row>
           <Col>
