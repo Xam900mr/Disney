@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Row, Col, Container, Badge, CardTitle, Table, Button } from 'reactstrap';
-import { AiFillEye, AiOutlineDelete } from "react-icons/ai";
+import { Row, Col, Container, Button } from 'reactstrap';
+import { AiFillEye, AiOutlineDelete, AiFillStar, AiTwotoneCalendar } from "react-icons/ai";
 
 import { getMyfavorites, deleteFavorites } from "../../utils/apicall.js";
 import { getDateInStrFormat } from "../../utils/utils.js";
 import MyImgLogin from "../../images/micky.gif";
 
 import Header from '../Header.jsx';
-
 import MyImgFondo from "../../images/fondo.gif";
 
 const bgStyle = {
@@ -20,13 +19,12 @@ const bgStyle = {
   backgroundPosition: "center",
   backgroundAttachment: "fixed",
 };
-
+const ITEMS_PER_PAGE = 5;
 export default function MyMovieList(){
 
     const [favorites, setFavorites] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 5;
-  
+    
     const getFavorites = () => {
       const email = localStorage.getItem('email');
       if (!email) {
@@ -49,7 +47,8 @@ export default function MyMovieList(){
       getFavorites();
     },[]);
 
-    const totalPages = favorites ? Math.ceil(favorites.length / ITEMS_PER_PAGE) : 1;
+    // Calcular paginación solo si favorites no es null
+    const totalPages = favorites ? Math.ceil(favorites.length / ITEMS_PER_PAGE) : 0;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const currentFavorites = favorites ? favorites.slice(startIndex, endIndex) : [];
@@ -67,12 +66,12 @@ export default function MyMovieList(){
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
-
-    const goToPage = (pageNumber) => {
-      setCurrentPage(pageNumber);
+    
+    const goToPage = (pageNum) => {
+      setCurrentPage(pageNum);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-
+    // Generar números de página a mostrar
     const getPageNumbers = () => {
       const pages = [];
       const maxPagesToShow = 5;
@@ -108,88 +107,103 @@ export default function MyMovieList(){
       return pages;
     };
 
-    //Deleting selected bookmark
     const deleteSelFavorite = (favorite) => {
-    deleteFavorites(favorite._id)
-      .then((res) => getFavorites())
-      .catch((err) => {
-        console.error('Delete favorite error', err);
-      });
+      deleteFavorites(favorite._id)
+        .then((res) => getFavorites())
+        .catch((err) => {
+          console.error('Delete favorite error', err);
+        });
     }
 
     const favoriteRender = (favorite) => {
         if (!favorite) return null;
 
-        if (favorite.movie) {
-            const m = favorite.movie;
-            return (
-                <Row className="justify-content-center">
-                  <Col>
-                    <div className="card" style={{ backgroundColor: '#8e9aaf' }}>
-                      <div className="card-body">
-                          <Row>
-                            <Col xs="2"><img src={m.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
-                            <Col xs="8" className="text-white">
-                                      <h6 className="text-white">{m.title}</h6>
-                                      <span style={{ color: '#a4c3b2' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
-                                      Year: {m.year}<br/>
-                                      Director: {m.director}<br/>
-                                      Popularity: {m.imdb_rating}<br/>
-                                      Plot: {m.plot}
-                            </Col>
-                            <Col xs="2">
-                                      <table cellPadding="3">
-                                        <tbody>
-                                          <tr>
-                                            <td><Link to={`/movies/details/${m._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-                                            <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                            </Col>
-                          </Row>
+        const item = favorite.movie || favorite.series;
+        if (!item) return null;
+
+        const isMovie = !!favorite.movie;
+        const detailsPath = isMovie ? `/movies/details/${item._id}` : `/series/details/${item._id}`;
+
+        return (
+          <div style={styles.card}>
+            <div style={styles.favoriteTag}>
+              <AiFillStar style={{ fontSize: '1.2rem', marginRight: '6px' }} />
+              Favorito
+            </div>
+
+            <Row className="g-0 h-100">
+              <Col xs="12" md="3" style={styles.posterCol}>
+                <Link to={detailsPath}>
+                  <div style={styles.posterContainer}>
+                    <img src={item.portada_url} alt={item.title} style={styles.poster} />
+                    <div style={styles.posterOverlay}>
+                      <div style={styles.playIcon}>
+                        <AiFillEye style={{ fontSize: '2rem' }} />
                       </div>
                     </div>
-                  </Col>
-                </Row>
-            );
-        }
+                  </div>
+                </Link>
+              </Col>
 
-        if (favorite.series) {
-            const s = favorite.series;
-            return (
-                <Row className="justify-content-center">
-                  <Col>
-                    <div className="card" style={{ backgroundColor: '#8e9aaf' }}>
-                      <div className="card-body">
-                          <Row>
-                            <Col xs="2"><img src={s.portada_url} alt="Poster" style={{ height: '150px' }} className="img-fluid"/></Col>
-                            <Col xs="8" className="text-white">
-                                      <h6 className="text-white">{s.title}</h6>
-                                      <span style={{ color: '#a4c3b2' }}>Added to bookmarks: {getDateInStrFormat(new Date(favorite.added_at))}</span><br/>
-                                      Years: {s.year_start} - {(s.year_end && s.year_end !== 0) ? s.year_end : 'En emision'}<br/>
-                                      Popularity: {s.imdb_rating}<br/>
-                                      Plot: {s.plot}
-                            </Col>
-                            <Col xs="2">
-                                      <table cellPadding="3">
-                                        <tbody>
-                                          <tr>
-                                            <td><Link to={`/series/details/${s._id}`}><Button color="danger"><AiFillEye/> Watch</Button></Link></td>
-                                            <td><Button color="secondary" onClick={() => deleteSelFavorite(favorite)}><AiOutlineDelete/> Remove</Button></td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                            </Col>
-                          </Row>
-                      </div>
+              <Col xs="12" md="7" style={styles.contentCol}>
+                <div style={styles.content}>
+                  <h3 style={styles.title}>{item.title}</h3>
+                  
+                  <div style={styles.addedDate}>
+                    <AiTwotoneCalendar style={{ marginRight: '6px' }} />
+                    Añadido el {getDateInStrFormat(new Date(favorite.added_at))}
+                  </div>
+
+                  <div style={styles.infoGrid}>
+                    <div style={styles.infoItem}>
+                      <span style={styles.infoLabel}>Año:</span>
+                      <span style={styles.infoValue}>
+                        {isMovie ? item.year : `${item.year_start} - ${(item.year_end && item.year_end !== 0) ? item.year_end : 'En emisión'}`}
+                      </span>
                     </div>
-                  </Col>
-                </Row>
-            );
-        }
+                    
+                    {isMovie && item.director && (
+                      <div style={styles.infoItem}>
+                        <span style={styles.infoLabel}>Director:</span>
+                        <span style={styles.infoValue}>{item.director}</span>
+                      </div>
+                    )}
+                    
+                    <div style={styles.infoItem}>
+                      <span style={styles.infoLabel}>Rating:</span>
+                      <span style={styles.ratingBadge}>⭐ {item.imdb_rating}</span>
+                    </div>
+                  </div>
 
-        return null;
+                  <p style={styles.plot}>
+                    {item.plot && item.plot.length > 200 
+                      ? `${item.plot.substring(0, 200)}...` 
+                      : item.plot}
+                  </p>
+                </div>
+              </Col>
+
+              <Col xs="12" md="2" style={styles.actionsCol}>
+                <div style={styles.actions}>
+                  <Link to={detailsPath} style={{ textDecoration: 'none', width: '100%' }}>
+                    <button style={styles.watchButton}>
+                      <AiFillEye style={{ fontSize: '1.2rem' }} />
+                      <span style={{ marginLeft: '8px' }}>Ver</span>
+                    </button>
+                  </Link>
+                  
+                  <button 
+                    style={styles.removeButton}
+                    onClick={() => deleteSelFavorite(favorite)}
+                  >
+                    <AiOutlineDelete style={{ fontSize: '1.2rem' }} />
+                    <span style={{ marginLeft: '8px' }}>Eliminar</span>
+                  </button>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        );
     }
    
     return favorites === null ? 
@@ -216,22 +230,44 @@ export default function MyMovieList(){
             <Header/>
           </Col>
         </Row> 
-        <br/>
-        <Container style={{ width: '100%', maxWidth: '100%', padding: '0 20px', boxSizing: 'border-box' }}>
-            <Table>
-              <tbody>
+        
+        <Container style={{ maxWidth: '1400px', padding: '40px 20px' }}>
+          {/* Header de favoritos */}
+          <div style={styles.pageHeader}>
+            <h1 style={styles.pageTitle}>
+              <AiFillStar style={{ fontSize: '2.5rem', marginRight: '12px', color: '#FFD700' }} />
+              Mis Favoritos
+            </h1>
+            <p style={styles.pageSubtitle}>
+              {favorites.length === 0 
+                ? 'No tienes favoritos guardados' 
+                : `${favorites.length} ${favorites.length === 1 ? 'favorito guardado' : 'favoritos guardados'}`
+              }
+            </p>
+          </div>
+
+          {/* Lista de favoritos */}
+          {favorites.length === 0 ? (
+            <div style={styles.emptyState}>
+              <AiFillStar style={{ fontSize: '5rem', color: 'rgba(255, 255, 255, 0.3)', marginBottom: '20px' }} />
+              <h3 style={{ color: '#ffffff', marginBottom: '10px' }}>No hay favoritos aún</h3>
+              <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Comienza a agregar tus películas y series favoritas</p>
+            </div>
+          ) : (
+            <>
+              <div style={styles.favoritesContainer}>
                 {currentFavorites.map((favorite, idx) => {
                   return (
                     <React.Fragment key={favorite._id || (favorite.movie && favorite.movie._id) || (favorite.series && favorite.series._id) || idx}>
                       {favoriteRender(favorite)}
                     </React.Fragment>
                   )
-                })}            
-              </tbody>
-            </Table>
-
-            {/* Paginación */}
-            <Row>
+                })}
+              </div>
+            </>
+          )}
+          {/* Paginación */}
+            <Row style={{ marginTop: '40px' }}>
               <Col className="d-flex justify-content-center align-items-center flex-wrap" style={{ gap: '12px', marginBottom: '40px' }}>
                 <button
                   onClick={goToPrevPage}
@@ -251,7 +287,7 @@ export default function MyMovieList(){
                 >
                   ← Anterior
                 </button>
-
+    
                 {/* Números de página */}
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
                   {getPageNumbers().map((page, index) => (
@@ -279,7 +315,7 @@ export default function MyMovieList(){
                     </button>
                   ))}
                 </div>
-
+    
                 <button
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}
@@ -303,4 +339,286 @@ export default function MyMovieList(){
         </Container>
       </div>
     );       
+}
+
+const styles = {
+  pageHeader: {
+    textAlign: 'center',
+    marginBottom: '40px',
+    padding: '30px',
+    background: 'linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(15, 20, 25, 0.95) 100%)',
+    borderRadius: '20px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+    border: '1px solid rgba(102, 126, 234, 0.3)',
+  },
+  pageTitle: {
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '3rem',
+    fontWeight: '700',
+    color: '#ffffff',
+    margin: 0,
+    marginBottom: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textShadow: '2px 2px 8px rgba(0, 0, 0, 0.6)',
+  },
+  pageSubtitle: {
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '1.2rem',
+    color: 'rgba(255, 255, 255, 0.7)',
+    margin: 0,
+  },
+  favoritesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px',
+  },
+  card: {
+    position: 'relative',
+    background: 'linear-gradient(135deg, rgba(26, 31, 46, 0.95) 0%, rgba(15, 20, 25, 0.95) 100%)',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    transition: 'all 0.3s ease',
+  },
+  favoriteTag: {
+    position: 'absolute',
+    top: '16px',
+    left: '16px',
+    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    color: '#ffffff',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    zIndex: 10,
+    boxShadow: '0 4px 12px rgba(255, 215, 0, 0.4)',
+  },
+  posterCol: {
+    padding: '20px',
+  },
+  posterContainer: {
+    position: 'relative',
+    width: '100%',
+    height: '280px',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    cursor: 'pointer',
+  },
+  poster: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    transition: 'transform 0.4s ease',
+  },
+  posterOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    background: 'rgba(0, 0, 0, 0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0,
+    transition: 'opacity 0.3s ease',
+  },
+  playIcon: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    background: 'rgba(255, 255, 255, 0.95)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#1a1f2e',
+  },
+  contentCol: {
+    padding: '20px',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  content: {
+    width: '100%',
+  },
+  title: {
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '1.8rem',
+    fontWeight: '700',
+    color: '#ffffff',
+    margin: 0,
+    marginBottom: '12px',
+    lineHeight: '1.3',
+  },
+  addedDate: {
+    display: 'flex',
+    alignItems: 'center',
+    color: '#a8b3ff',
+    fontSize: '0.9rem',
+    marginBottom: '16px',
+  },
+  infoGrid: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '16px',
+    marginBottom: '16px',
+  },
+  infoItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  infoLabel: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+  },
+  infoValue: {
+    color: '#ffffff',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+  },
+  ratingBadge: {
+    padding: '4px 12px',
+    background: 'rgba(255, 215, 0, 0.2)',
+    border: '1px solid rgba(255, 215, 0, 0.4)',
+    borderRadius: '12px',
+    color: '#FFD700',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+  },
+  plot: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '0.95rem',
+    lineHeight: '1.6',
+    margin: 0,
+  },
+  actionsCol: {
+    padding: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    width: '100%',
+  },
+  watchButton: {
+    width: '100%',
+    padding: '12px 20px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    borderRadius: '12px',
+    color: '#ffffff',
+    fontSize: '1rem',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+  },
+  removeButton: {
+    width: '100%',
+    padding: '12px 20px',
+    background: 'rgba(255, 87, 108, 0.2)',
+    border: '2px solid rgba(255, 87, 108, 0.5)',
+    borderRadius: '12px',
+    color: '#ff576c',
+    fontSize: '1rem',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '80px 20px',
+    background: 'rgba(26, 31, 46, 0.8)',
+    borderRadius: '20px',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+  },
+  pageButton: {
+    padding: '12px 24px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    borderRadius: '12px',
+    color: '#ffffff',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+  },
+  pageButtonDisabled: {
+    background: 'rgba(102, 126, 234, 0.3)',
+    cursor: 'not-allowed',
+    boxShadow: 'none',
+  },
+  pageIndicator: {
+    color: '#ffffff',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    background: 'rgba(0, 0, 0, 0.5)',
+    padding: '10px 20px',
+    borderRadius: '12px',
+    backdropFilter: 'blur(10px)',
+  },
+};
+// Agregar este <style> tag al final del return, antes del último </div>
+
+<style>{`
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+    border-color: rgba(102, 126, 234, 0.4);
   }
+
+  .posterContainer:hover .poster {
+    transform: scale(1.1);
+  }
+
+  .posterContainer:hover .posterOverlay {
+    opacity: 1;
+  }
+
+  .watchButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+
+  .removeButton:hover {
+    background: rgba(255, 87, 108, 0.3);
+    border-color: rgba(255, 87, 108, 0.8);
+    transform: translateY(-2px);
+  }
+
+  .pageButton:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  }
+
+  @media (max-width: 768px) {
+    .pageTitle {
+      font-size: 2rem !important;
+    }
+    
+    .title {
+      font-size: 1.4rem !important;
+    }
+    
+    .posterContainer {
+      height: 200px !important;
+    }
+  }
+`}</style>
