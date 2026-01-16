@@ -19,6 +19,9 @@ var SerieSchema = new Schema({
     tmdb_id: Number,
     backdrop_url: String,
     trailer_url: String,
+    favoritesCount: { type: Number, default: 0, index: true },
 });
 
 module.exports = mongoose.model('Serie', SerieSchema, 'series');
+SerieSchema.index({ favoritesCount: -1, imdb_rating: -1 });
+

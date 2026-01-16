@@ -18,7 +18,8 @@ export {
     getAllCharacters_Series,
     getAllCharacters_Movies,
     getSingleCharacter_Movie,
-    checkFavorite
+    checkFavorite,
+    getTopRanking
 }
 
 //Movies
@@ -104,7 +105,8 @@ function registerUser(userData) {
         email: userData.email,
         password: userData.password,
         name: userData.firstname,
-        lastname: userData.lastname
+        lastname: userData.lastname,
+        avatar: userData.avatar
     };
     return API.post('/users', mappedData).then(result => result.data);
 }
@@ -140,3 +142,9 @@ function checkFavorite(movieId = null, seriesId = null) {
         { headers: getAuthHeader() }
     ).then(res => res.data);
 }
+
+//ranking
+function getTopRanking(limit = 10) {
+  return API.get(`/ranking/top?limit=${limit}`).then(res => res.data);
+}
+

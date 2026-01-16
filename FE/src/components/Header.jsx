@@ -13,7 +13,10 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  Input
+  Input,
+  Modal,
+  ModalHeader,
+  ModalBody,
 } from 'reactstrap';
 
 import { searchAll } from '../utils/apicall';
@@ -29,7 +32,7 @@ const MIN_SEARCH_LENGTH = 2;
 const NAV_ITEMS = [
   { id: 'movies', label: 'Películas', path: '/movies' },
   { id: 'series', label: 'Series', path: '/series' },
-  { id: 'favorites', label: 'Favoritos', path: '/favorites' }
+  { id: 'mi top', label: 'mi top', path: '/trendingSection' }
 ];
 
 const CHARACTER_DROPDOWN = [
@@ -37,8 +40,8 @@ const CHARACTER_DROPDOWN = [
   { label: 'Series', path: '/characters_series' }
 ];
 
-// Avatares aleatorios estilo Disney
-const AVATAR_URLS = [
+// Avatares predefinidos - Sincronizados con miPerfil.jsx
+const AVATARS = [
   'https://i.pravatar.cc/150?img=1',
   'https://i.pravatar.cc/150?img=2',
   'https://i.pravatar.cc/150?img=3',
@@ -46,7 +49,11 @@ const AVATAR_URLS = [
   'https://i.pravatar.cc/150?img=5',
   'https://i.pravatar.cc/150?img=6',
   'https://i.pravatar.cc/150?img=7',
-  'https://i.pravatar.cc/150?img=8'
+  'https://i.pravatar.cc/150?img=8',
+  'https://i.pravatar.cc/150?img=9',
+  'https://i.pravatar.cc/150?img=10',
+  'https://i.pravatar.cc/150?img=11',
+  'https://i.pravatar.cc/150?img=12',
 ];
 
 // ============================================
@@ -60,11 +67,6 @@ const highlight = (text, query) => {
       ? <mark key={i} className="search-highlight">{part}</mark>
       : part
   );
-};
-
-const getRandomAvatar = () => {
-  const randomIndex = Math.floor(Math.random() * AVATAR_URLS.length);
-  return AVATAR_URLS[randomIndex];
 };
 
 // ============================================
@@ -192,17 +194,18 @@ const UserProfile = ({ name, avatar, onClick }) => (
   <button className="header-user-profile" onClick={onClick}>
     <span className="header-user-name">{name}</span>
     <img src={avatar} alt={name} className="header-user-avatar" />
+    <span className="header-user-caret">▾</span>
   </button>
 );
 
-const LogoutButton = ({ onClick }) => (
+/*const LogoutButton = ({ onClick }) => (
   <button className="header-logout-button" onClick={onClick} aria-label="Cerrar sesión">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
       <path d="M7.5 1v7h1V1h-1z"/>
       <path d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z"/>
     </svg>
   </button>
-);
+);*/
 
 // ============================================
 // MAIN COMPONENT
@@ -210,7 +213,8 @@ const LogoutButton = ({ onClick }) => (
 export default function Header() {
   const navigate = useNavigate();
   const wrapperRef = useRef(null);
-  const [avatar] = useState(() => getRandomAvatar());
+  const [avatar, setAvatar] = useState(localStorage.getItem('userAvatar') || localStorage.getItem('avatar'));
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -291,9 +295,57 @@ export default function Header() {
     console.log('User profile clicked');
   };
 
+  const handleAvatarSelect = async (selectedAvatar) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+      
+      // Actualizar en el backend
+      const response = await fetch(`http://localhost:3000/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatar: selectedAvatar })
+      });
+
+      if (response.ok) {
+        localStorage.setItem('avatar', selectedAvatar);
+        localStorage.setItem('userAvatar', selectedAvatar);
+        setAvatar(selectedAvatar);
+        setShowAvatarModal(false);
+      }
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+    }
+  };
+
   // ============================================
   // EFFECTS
   // ============================================
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newAvatar = localStorage.getItem('userAvatar') || localStorage.getItem('avatar');
+      setAvatar(newAvatar);
+    };
+
+    // Escuchar cambios en localStorage
+    window.addEventListener('storage', handleStorageChange);
+    // Interval para verificar cambios locales (mismo tab)
+    const interval = setInterval(() => {
+      const newAvatar = localStorage.getItem('userAvatar') || localStorage.getItem('avatar');
+      if (newAvatar !== avatar) {
+        setAvatar(newAvatar);
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [avatar]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       handleSearch(query);
@@ -307,7 +359,7 @@ export default function Header() {
   // ============================================
   if (!localStorage.getItem('token')) return null;
 
-  const userName = localStorage.getItem('name') || 'Usuario';
+  const userName = localStorage.getItem('username') || 'Usuario';
 
   return (
     <>
@@ -317,7 +369,7 @@ export default function Header() {
         <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
 
         <Collapse isOpen={isOpen} navbar>
-          <Nav className="me-auto" navbar>
+          <Nav className="mx-auto" navbar > 
             {NAV_ITEMS.map((item) => (
               <NavMenuItem
                 key={item.id}
@@ -339,12 +391,38 @@ export default function Header() {
 
           <div className="header-actions">
             <SearchButton onClick={() => setShowSearch(true)} />
-            <UserProfile 
-              name={userName} 
-              avatar={avatar}
-              onClick={handleUserProfileClick}
-            />
-            <LogoutButton onClick={handleLogout} />
+
+            <UncontrolledDropdown nav inNavbar className="header-user-dropdown">
+              <DropdownToggle nav caret={false} className="header-dropdown-toggle">
+                <UserProfile 
+                  name={userName} 
+                  avatar={avatar}
+                  onClick={handleUserProfileClick}
+                />
+              </DropdownToggle>
+              <DropdownMenu end className="header-dropdown-menu">
+                <DropdownItem onClick={() => navigate('/miPerfil')} className="header-dropdown-item">
+                  Mi perfil
+                </DropdownItem>
+                {/*
+                <DropdownItem onClick={() => setShowAvatarModal(true)} className="header-dropdown-item">
+                  Cambiar avatar
+                </DropdownItem>
+                */}
+                <DropdownItem onClick={() => navigate('/favorites')} className="header-dropdown-item">
+                  Favoritos
+                </DropdownItem>
+
+                <DropdownItem onClick={() => navigate('/estadistica')} className="header-dropdown-item">
+                  Mis Estadísticas
+                </DropdownItem>
+                
+                <DropdownItem divider />
+                <DropdownItem onClick={handleLogout} className="header-dropdown-item">
+                  Cerrar sesión
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
           </div>
         </Collapse>
       </Navbar>
@@ -365,6 +443,25 @@ export default function Header() {
         onKeyDown={handleKeyDown}
         wrapperRef={wrapperRef}
       />
+
+      <Modal isOpen={showAvatarModal} toggle={() => setShowAvatarModal(false)} centered className="avatar-modal">
+        <ModalHeader toggle={() => setShowAvatarModal(false)} className="avatar-modal-header">
+          Selecciona tu avatar
+        </ModalHeader>
+        <ModalBody className="avatar-modal-body">
+          <div className="avatar-grid">
+            {AVATARS.map((url, index) => (
+              <div
+                key={index}
+                className={`avatar-option ${avatar === url ? 'selected' : ''}`}
+                onClick={() => handleAvatarSelect(url)}
+              >
+                <img src={url} alt={`Avatar ${index + 1}`} className="avatar-option-image" />
+              </div>
+            ))}
+          </div>
+        </ModalBody>
+      </Modal>
     </>
   );
 }

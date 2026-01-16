@@ -11,10 +11,27 @@ var FavoriteSchema = new Schema({
 });
 
 FavoriteSchema.pre('validate', function(next) {
-  if (!this.movie && !this.series) {
+  const hasMovie = !!this.movie;
+  const hasSeries = !!this.series;
+
+  if (!hasMovie && !hasSeries) {
     return next(new Error('Debe proporcionar movie o series'));
+  }
+  if (hasMovie && hasSeries) {
+    return next(new Error('Proporciona solo movie o solo series'));
   }
   next();
 });
+
+// Evitar duplicados por usuario + contenido
+FavoriteSchema.index(
+  { email: 1, movie: 1 },
+  { unique: true, sparse: true }
+);
+
+FavoriteSchema.index(
+  { email: 1, series: 1 },
+  { unique: true, sparse: true }
+);
 
 module.exports = mongoose.model('Favorite', FavoriteSchema, 'favorites');

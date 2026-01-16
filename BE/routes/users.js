@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const mongoose = require('mongoose');
 const { tokenVerify } = require('../auth');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
@@ -47,15 +48,32 @@ router.post('/', function(req, res, next) {
 
 //Delete user by ID
 router.delete('/:id', tokenVerify,
-  function(req, res, next) {
+  async function(req, res, next) {
     debug("Delete user by ID");
-    User.findByIdAndRemove(req.params.id)
-      .then(function() {
-        return res.sendStatus(204);
-      })
-      .catch(function(err) {
-        return res.status(500).send(err);
-      });
+    debug('Auth userId:', req.userId, 'Param id:', req.params.id);
+
+    try {
+      const { id } = req.params;
+
+      // Validar ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'ID de usuario inválido' });
+      }
+
+      // Asegurar que un usuario solo pueda eliminar su propia cuenta
+      if (String(req.userId) !== String(id)) {
+        return res.status(403).json({ error: 'No autorizado para eliminar este usuario' });
+      }
+
+      const deleted = await User.findByIdAndDelete(id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+      return res.sendStatus(204);
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      return res.status(500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
+    }
 });
 
 //Inicio de sesión
@@ -91,7 +109,13 @@ router.post('/login', function(req, res, next) {
       return res.status(200).json({ 
         message: 'Autenticación exitosa.',
         token: token,
-        user: { id: authenticatedUser._id, username: authenticatedUser.username, email: authenticatedUser.email, name: authenticatedUser.name }
+        user: { 
+          id: authenticatedUser._id, 
+          username: authenticatedUser.username, 
+          email: authenticatedUser.email, 
+          name: authenticatedUser.name,
+          avatar: authenticatedUser.avatar 
+        }
       });
     })
     .catch(function(err) {
@@ -117,6 +141,7 @@ router.post('/google-signin', async function(req, res, next) {
         email: email,
         name: name,
         lastname: name, // En Google no siempre tenemos lastname
+        avatar: 'https://i.pravatar.cc/150?img=1', // Asignar un avatar por defecto
         password: 'google_signin' // Placeholder, no se usa
       });
     }
@@ -131,7 +156,7 @@ router.post('/google-signin', async function(req, res, next) {
     return res.status(200).json({ 
       message: 'Google Sign-In exitoso',
       token: token,
-      user: { id: user._id, email: user.email, name: user.name }
+      user: { id: user._id, email: user.email, name: user.name, avatar: user.avatar }
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -142,14 +167,38 @@ router.post('/google-signin', async function(req, res, next) {
 router.put("/:id", tokenVerify, 
   function (req, res, next) {
     debug("Modificación segura de un usuario con token");
-    User.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      .then(function(userinfo) {
-        return res.status(200).json(userinfo);
-      })
-      .catch(function(err) {
-        return res.status(500).send(err);
-      });
-});
+    
+    // Si intenta cambiar el username, verificar que sea único
+    if (req.body.username) {
+      User.findOne({ username: req.body.username, _id: { $ne: req.params.id } })
+        .then(function(existingUser) {
+          if (existingUser) {
+            return res.status(400).json({ error: 'El nombre de usuario ya existe' });
+          }
+          
+          // Username no existe o es el suyo, proceder con la actualización
+          User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+            .then(function(userinfo) {
+              return res.status(200).json(userinfo);
+            })
+            .catch(function(err) {
+              return res.status(500).send(err);
+            });
+        })
+        .catch(function(err) {
+          return res.status(500).send(err);
+        });
+    } else {
+      // Si no cambia username, actualizar sin validación de unicidad
+      User.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        .then(function(userinfo) {
+          return res.status(200).json(userinfo);
+        })
+        .catch(function(err) {
+          return res.status(500).send(err);
+        });
+    }
+  });
 
 
 module.exports = router;

@@ -20,7 +20,9 @@ var MovieSchema = new Schema({
     portada_url: String,
     trailer_url: String,
     backdrop_url: String,
-    tagline: String
+    tagline: String,
+    favoritesCount: { type: Number, default: 0, index: true },
 });
 
 module.exports = mongoose.model('Movie', MovieSchema, 'movies');
+MovieSchema.index({ favoritesCount: -1, imdb_rating: -1 });

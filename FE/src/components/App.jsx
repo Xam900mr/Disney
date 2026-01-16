@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 
 
@@ -15,8 +15,20 @@ import CSeriesList from './characters_series/CharacterList';
 import ShowCSerie from './characters_series/ShowCharacter';
 import CMoviesList from './characters_movies/CharacterList';
 import ShowCMovie from './characters_movies/ShowCharacter';
+import MyProfile from './miPerfil';
+import TrendingSection from './trendingSection';
 
 function App() {
+  useEffect(() => {
+    const handleUnload = () => {
+      localStorage.clear();
+      sessionStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
+  }, []);
+
   return (
     <Router basename={import.meta.env.VITE_PUBLIC_URL}>
       <div>
@@ -68,6 +80,19 @@ function App() {
               <MyFavorites/>
             </ProtectedRoute>
           } />
+
+          <Route path="/miPerfil" element={
+            <ProtectedRoute>
+              <MyProfile/>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/trendingSection" element={
+            <ProtectedRoute>
+              <TrendingSection/>
+            </ProtectedRoute>
+          } />
+
         </Routes>
       </div>
     </Router>

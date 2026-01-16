@@ -31,7 +31,23 @@ const INITIAL_FORM_STATE = {
   password: "",
   firstname: "",
   lastname: "",
+  avatar: "",
 };
+
+const AVATARS = [
+  'https://i.pravatar.cc/150?img=1',
+  'https://i.pravatar.cc/150?img=2',
+  'https://i.pravatar.cc/150?img=3',
+  'https://i.pravatar.cc/150?img=4',
+  'https://i.pravatar.cc/150?img=5',
+  'https://i.pravatar.cc/150?img=6',
+  'https://i.pravatar.cc/150?img=7',
+  'https://i.pravatar.cc/150?img=8',
+  'https://i.pravatar.cc/150?img=9',
+  'https://i.pravatar.cc/150?img=10',
+  'https://i.pravatar.cc/150?img=11',
+  'https://i.pravatar.cc/150?img=12',
+];
 
 const MESSAGES = {
   loginSuccess: "¡Inicio de sesión exitoso!",
@@ -46,6 +62,53 @@ const MESSAGES = {
 const dynamicStyles = {
   wrapper: {
     backgroundImage: `url(${MyImgLogin})`,
+  },
+};
+
+const styles = {
+  avatarPicker: {
+    marginTop: '20px',
+    padding: '20px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+  },
+  pickerTitle: {
+    color: '#fff',
+    marginBottom: '15px',
+    fontSize: '14px',
+    fontWeight: '600',
+  },
+  avatarGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '10px',
+  },
+  avatarOption: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    cursor: 'pointer',
+    border: '2px solid transparent',
+    transition: 'all 0.3s ease',
+    ':hover': {
+      transform: 'scale(1.1)',
+    },
+  },
+  avatarOptionSelected: {
+    border: '2px solid #FFD700',
+    boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
+  },
+  avatarButton: {
+    marginTop: '10px',
+    color: '#fff',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    border: '1px solid #FFD700',
+    padding: '8px 16px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    transition: 'all 0.3s ease',
   },
 };
 
@@ -96,6 +159,7 @@ function LoginForm() {
   const [message, setMessage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -111,9 +175,14 @@ function LoginForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAvatarChange = (avatarUrl) => {
+    setFormData(prev => ({ ...prev, avatar: avatarUrl }));
+  };
+
   const resetForm = () => {
     setMessage(null);
     setFormData(INITIAL_FORM_STATE);
+    setShowAvatarPicker(false);
   };
 
   const toggleForm = () => {
@@ -123,6 +192,7 @@ function LoginForm() {
 
   const saveUserSession = (response) => {
     localStorage.setItem("token", response.token);
+    localStorage.setItem("userId", response.user.id);
     localStorage.setItem("name", response.user.name);
     const email = response.user.email || localStorage.getItem('email');
     if (email) {
@@ -132,6 +202,12 @@ function LoginForm() {
       console.error('Email no disponible en la respuesta:', response.user);
     }
     localStorage.setItem("username", response.user.username || response.user.email);
+    
+    // Load avatar if exists
+    if (response.user.avatar) {
+      localStorage.setItem("avatar", response.user.avatar);
+      localStorage.setItem("userAvatar", response.user.avatar);
+    }
   };
 
   const showSuccessAndRedirect = (text, delay = REDIRECT_DELAY) => {
@@ -182,6 +258,7 @@ function LoginForm() {
         password: formData.password,
         firstname: formData.firstname,
         lastname: formData.lastname,
+        avatar: formData.avatar || AVATARS[0],
       });
 
       if (response) {
@@ -368,16 +445,47 @@ function LoginForm() {
 
             <FormGroup>
               <Label for="reg-password">Contraseña</Label>
-              <Input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                id="reg-password"
-                placeholder="Mínimo 6 caracteres"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                disabled={loading}
-              />
+              <div className="login-password-container">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  id="reg-password"
+                  placeholder="Mínimo 6 caracteres"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  disabled={loading}
+                />
+                <PasswordToggle 
+                  show={showPassword} 
+                  onToggle={() => setShowPassword(!showPassword)} 
+                />
+              </div>
+            </FormGroup>
+
+            <FormGroup>
+              <Label>Selecciona tu avatar</Label>
+              <div style={styles.avatarPicker}>
+                <h4 style={styles.pickerTitle}>
+                  {formData.avatar ? '✓ Avatar seleccionado' : 'Elige tu avatar'}
+                </h4>
+                <div style={styles.avatarGrid}>
+                  {AVATARS.map((avatar, index) => (
+                    <img
+                      key={index}
+                      src={avatar}
+                      alt={`Avatar ${index + 1}`}
+                      style={{
+                        ...styles.avatarOption,
+                        ...(formData.avatar === avatar ? styles.avatarOptionSelected : {}),
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.6 : 1,
+                      }}
+                      onClick={() => !loading && handleAvatarChange(avatar)}
+                    />
+                  ))}
+                </div>
+              </div>
             </FormGroup>
 
             <Button 
