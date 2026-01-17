@@ -19,7 +19,11 @@ export {
     getAllCharacters_Movies,
     getSingleCharacter_Movie,
     checkFavorite,
-    getTopRanking
+    getTopRanking,
+    getMyStats,
+    trackView,
+    getMyWatchedMovies,
+    getMyWatchedSeries  
 }
 
 //Movies
@@ -148,3 +152,28 @@ function getTopRanking(limit = 10) {
   return API.get(`/ranking/top?limit=${limit}`).then(res => res.data);
 }
 
+function getMyStats() {
+  return API.get('/views/me/stats', { headers: getAuthHeader() }).then(r => r.data);
+}
+// Track a view event
+function trackView(contentType, contentId, secondsWatched = 0) {
+  return API.post('/views/track', {
+    contentType, // 'movie' o 'series'
+    contentId,
+    secondsWatched
+  }, {
+    headers: getAuthHeader()
+  }).catch(err => {
+    console.error('Error tracking view:', err);
+  });
+}
+
+// Listado de películas vistas (únicas)
+function getMyWatchedMovies() {
+    return API.get('/views/me/watched/movies', { headers: getAuthHeader() }).then(r => r.data);
+}
+
+// Listado de series vistas (únicas)
+function getMyWatchedSeries() {
+    return API.get('/views/me/watched/series', { headers: getAuthHeader() }).then(r => r.data);
+}

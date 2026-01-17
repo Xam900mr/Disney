@@ -10,25 +10,16 @@ import MovieList from './movies/MovieList';
 import ShowMovie from './movies/ShowMovie';
 import MyFavorites from './movies/MyFavorites';
 import SeriesList from './series/SerieList';
-import ShowSerie from './series/ShowSerie';
-import CSeriesList from './characters_series/CharacterList';
 import ShowCSerie from './characters_series/ShowCharacter';
 import CMoviesList from './characters_movies/CharacterList';
+import CSeriesList from './characters_series/CharacterList';
 import ShowCMovie from './characters_movies/ShowCharacter';
+import ShowSerie from './series/ShowSerie';
 import MyProfile from './miPerfil';
 import TrendingSection from './trendingSection';
+import Estadisticas from './estadisticas';
 
 function App() {
-  useEffect(() => {
-    const handleUnload = () => {
-      localStorage.clear();
-      sessionStorage.clear();
-    };
-
-    window.addEventListener('beforeunload', handleUnload);
-    return () => window.removeEventListener('beforeunload', handleUnload);
-  }, []);
-
   return (
     <Router basename={import.meta.env.VITE_PUBLIC_URL}>
       <div>
@@ -92,6 +83,12 @@ function App() {
               <TrendingSection/>
             </ProtectedRoute>
           } />
+
+          <Route path="/stats" element={
+            <ProtectedRoute>
+              <Estadisticas />
+            </ProtectedRoute>
+          }/>
 
         </Routes>
       </div>

@@ -30,36 +30,45 @@ export default function TrendingSection() {
             </h2>
 
             <div style={styles.rankList}>
+              <style>{`
+                @keyframes twinkle {
+                  0% { opacity: 0.6; }
+                  50% { opacity: 1; }
+                  100% { opacity: 0.6; }
+                }
+              `}</style>
+
               {ranking.map((m, idx) => {
                 const isMovie = m.type === 'movie';
                 const linkPath = isMovie ? `/movies/details/${m._id}` : `/series/details/${m._id}`;
 
                 const img = m.backdrop_url || m.portada_url;
-                const dateRaw = m.createdAt || m.release_date || m.released;
-                const dateTxt = dateRaw ? new Date(dateRaw).toLocaleDateString('es-ES') : '—';
 
                 return (
                   <Link key={`${m.type}-${m._id}`} to={linkPath} style={styles.rankRowLink}>
                     <div style={styles.rankRow}>
-                      <div style={styles.rankLeft}>
-                        <div style={styles.rankNumber}>{idx + 1}</div>
-                        <span style={{ ...styles.typeChip, ...(isMovie ? styles.chipMovie : styles.chipSeries) }}>
-                          {isMovie ? 'PELÍCULA' : 'SERIE'}
-                        </span>
-                      </div>
 
                       <div style={styles.rankBanner}>
                         {img ? <img src={img} alt={m.title} style={styles.rankImg} /> : <div style={styles.noImg} />}
                         <div style={styles.rankOverlay} />
-                        <div style={styles.rankName}>
-                          {m.title}
-                          <div style={styles.rankMeta}>📅 {dateTxt}</div>
-                        </div>
                       </div>
 
-                      <div style={styles.rankRight}>
-                        <span style={styles.badge}>❤️ {m.favoritesCount ?? 0}</span>
-                        <span style={styles.badge}>⭐ {m.imdb_rating ?? 'N/A'}</span>
+                      <div style={styles.rankContent}>
+                        <div style={styles.rankLeft}>
+                          <div style={styles.rankNumber}>{idx + 1}</div>
+                          <span style={{ margin: '0 8px', ...styles.typeChip, ...(isMovie ? styles.chipMovie : styles.chipSeries) }}>
+                              {isMovie ? 'P' : 'S'}
+                          </span>
+                        </div>
+
+                        <div style={styles.rankCenter}>
+                          <div style={styles.rankName}>{m.title}</div>
+                        </div>
+
+                        <div style={styles.rankRight}>
+                          <span style={styles.badge}>❤️ {m.favoritesCount ?? 0}</span>
+                          <span style={styles.badge}>⭐ {m.imdb_rating ?? 'N/A'}</span>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -75,12 +84,10 @@ export default function TrendingSection() {
 }
 const styles = {
   section: { 
-    background: '#0b0b0b', 
-    minHeight: '100vh', 
-    paddingTop: '20px',
+    minHeight: '100vh',
     padding: '60px 0',
-    marginBottom: '40px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+    background:'linear-gradient(180deg, #6EC6FF 0%, #8B7CFF 50%, #FFB7D5 100%)',
+  
   },
   header: {
     textAlign: 'center',
@@ -109,15 +116,16 @@ const styles = {
   rankRowLink: { textDecoration: 'none' },
 
   rankRow: {
-    display: 'grid',
-    gridTemplateColumns: '220px 1fr 220px',
-    alignItems: 'center',
-    gap: '14px',
-    borderRadius: '28px',
-    background: 'rgba(255,255,255,0.08)',
-    overflow: 'hidden',
-    height: '78px',
     position: 'relative',
+    borderRadius: '28px',
+    overflow: 'hidden',
+    height: '84px',
+    background: 'rgba(255,255,255,0.28)',
+    border: '1px solid rgba(255,255,255,0.45)',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+    backdropFilter: 'blur(8px)',
+    alignItems: 'center',
+    
   },
 
   rankLeft: {
@@ -145,31 +153,62 @@ const styles = {
     padding: '8px 12px', borderRadius: '999px', fontWeight: 800, fontSize: '12px',
     letterSpacing: '0.6px', color: '#fff',
   },
-  chipMovie: { background: 'rgba(0,160,255,0.35)' },
-  chipSeries:{ background: 'rgba(170,80,255,0.35)' },
+  chipMovie: { background: 'rgba(0,160,255,0.5)' },
+  chipSeries:{ background: 'rgba(170,80,255,0.5)' },
 
-  rankBanner: { position: 'relative', height: '100%', overflow: 'hidden', zIndex: 1 },
-  rankImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  rankBanner: { 
+    position: 'absolute',
+    inset: 0,
+    zIndex: 0,
+  },
+  rankImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    objectPosition: 'center',
+    display: 'block',
+    filter: 'saturate(1.05) contrast(1.05)',
+    background: 'rgba(255,255,255,0.22)'
+  },
+
   rankOverlay: {
     position: 'absolute',
     inset: 0,
-    background: 'linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.0) 60%)',
+    background: 'linear-gradient(90deg,rgb(0, 0, 0) 0%, rgba(15,20,25,0.1) 55%, rgba(0,0,0) 100%)',
   },
   rankName: {
-    position: 'absolute',
-    left: '16px',
+    left: '20px',
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#fff',
     fontWeight: 800,
     fontSize: '20px',
     textShadow: '0 2px 12px rgba(0,0,0,0.8)',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    position: 'center',
   },
-  rankMeta: { fontSize: '12px', fontWeight: 700, opacity: 0.9, marginTop: '4px' },
 
   rankRight: { display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px', paddingRight: '14px' },
   badge: {
     background: 'rgba(0,0,0,0.45)', color: '#fff',
     padding: '10px 14px', borderRadius: '999px', fontWeight: 800, whiteSpace: 'nowrap',
+  },
+  rankContent: {
+    position: 'relative',
+    zIndex: 1,
+    height: '100%',
+    display: 'grid',
+    gridTemplateColumns: '220px 1fr 220px',
+    alignItems: 'center',
+    padding: '0 14px',
+    minWidth: '0',
+  },
+  rankCenter: {
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: '0',
   },
 };

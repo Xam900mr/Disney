@@ -5,7 +5,7 @@ import { Row, Col, Button, Container } from 'reactstrap';
 import { AiOutlineArrowLeft, AiFillAppstore, AiFillVideoCamera, AiFillEdit, AiOutlineGlobal, AiFillPlayCircle, AiOutlineClose, AiFillStar, AiTwotoneCalendar } from "react-icons/ai";
 
 import Header from '../Header.jsx';
-import { getSingleMovie } from "../../utils/apicall.js";
+import { getSingleMovie, trackView } from "../../utils/apicall.js";
 
 export default function ShowMovie(){
 
@@ -27,6 +27,13 @@ export default function ShowMovie(){
   useEffect(() =>{
     getMovie(id);
   },[id]);
+
+  useEffect(() => {
+  // Solo trackear cuando la película esté cargada
+    if (movie && movie._id) {
+      trackView('movie', movie._id, 120); // registra 2 minutos para sumar en estadísticas
+    }
+  }, [movie]);
 
   const getYouTubeEmbedUrl = (url) => {
     if (!url || typeof url !== 'string') return null;

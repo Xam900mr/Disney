@@ -413,8 +413,8 @@ export default function Header() {
                   Favoritos
                 </DropdownItem>
 
-                <DropdownItem onClick={() => navigate('/estadistica')} className="header-dropdown-item">
-                  Mis Estadísticas
+                <DropdownItem onClick={() => navigate('/stats')} className="header-dropdown-item">
+                  Mi lista
                 </DropdownItem>
                 
                 <DropdownItem divider />

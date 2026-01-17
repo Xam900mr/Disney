@@ -289,7 +289,8 @@ export default function Profile() {
             transform: translateY(0);
           }
         }
-      `}</style>
+      `}
+    </style>
       <Row>
         <Col>
           <Header />
