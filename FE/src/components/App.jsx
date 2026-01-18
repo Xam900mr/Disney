@@ -18,6 +18,7 @@ import ShowSerie from './series/ShowSerie';
 import MyProfile from './miPerfil';
 import TrendingSection from './trendingSection';
 import Estadisticas from './estadisticas';
+import VerTarde from './verTarde';
 
 function App() {
   return (
@@ -89,6 +90,12 @@ function App() {
               <Estadisticas />
             </ProtectedRoute>
           }/>
+
+          <Route path="/watch-later" element={
+            <ProtectedRoute>
+              <VerTarde/>
+            </ProtectedRoute>
+          } />
 
         </Routes>
       </div>

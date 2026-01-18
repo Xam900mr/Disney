@@ -23,7 +23,11 @@ export {
     getMyStats,
     trackView,
     getMyWatchedMovies,
-    getMyWatchedSeries  
+    getMyWatchedSeries,
+    addWatchLater,
+    getMyWatchLater,
+    deleteWatchLater,
+    checkWatchLater
 }
 
 //Movies
@@ -176,4 +180,29 @@ function getMyWatchedMovies() {
 // Listado de series vistas (únicas)
 function getMyWatchedSeries() {
     return API.get('/views/me/watched/series', { headers: getAuthHeader() }).then(r => r.data);
+}
+//Watch Later
+function addWatchLater(movieId = null, seriesId = null){
+    return API.post('/watchlater', {
+        movieId,
+        seriesId
+    }, {
+        headers: getAuthHeader()
+    }).then(result => result.data);
+}
+function getMyWatchLater() {
+    return API.get('/watchlater', {
+        headers: getAuthHeader()
+    }).then(res => res.data);
+}
+function deleteWatchLater(id) {
+    return API.delete('/watchlater/'+id, {
+        headers: getAuthHeader()
+    }).then(result => result.data);
+}
+function checkWatchLater(movieId = null, seriesId = null) {
+    return API.post('/watchlater/check',
+        { movieId, seriesId },
+        { headers: getAuthHeader() }
+    ).then(res => res.data);
 }

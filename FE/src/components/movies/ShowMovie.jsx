@@ -5,12 +5,15 @@ import { Row, Col, Button, Container } from 'reactstrap';
 import { AiOutlineArrowLeft, AiFillAppstore, AiFillVideoCamera, AiFillEdit, AiOutlineGlobal, AiFillPlayCircle, AiOutlineClose, AiFillStar, AiTwotoneCalendar } from "react-icons/ai";
 
 import Header from '../Header.jsx';
-import { getSingleMovie, trackView } from "../../utils/apicall.js";
+import { getSingleMovie, trackView, addWatchLater, deleteWatchLater, checkWatchLater } from "../../utils/apicall.js";
 
 export default function ShowMovie(){
 
   const [movie, setMovie] = useState(null);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [isInWatchLater, setIsInWatchLater] = useState(false);
+  const [watchLaterId, setWatchLaterId] = useState(null);
+  const [loadingWatchLater, setLoadingWatchLater] = useState(false);
 
   const getMovie = (id) => {
     getSingleMovie(id)
@@ -32,8 +35,41 @@ export default function ShowMovie(){
   // Solo trackear cuando la película esté cargada
     if (movie && movie._id) {
       trackView('movie', movie._id, 120); // registra 2 minutos para sumar en estadísticas
+      
+      // Verificar si está en watch later
+      const token = localStorage.getItem('token');
+      if (token) {
+        checkWatchLater(movie._id, null)
+          .then(res => {
+            setIsInWatchLater(res.exists);
+            if (res.watchLaterId) {
+              setWatchLaterId(res.watchLaterId);
+            }
+          })
+          .catch(err => console.error(err));
+      }
     }
   }, [movie]);
+
+  const toggleWatchLater = async () => {
+    setLoadingWatchLater(true);
+    try {
+      if (!isInWatchLater) {
+        const res = await addWatchLater(movie._id);
+        setIsInWatchLater(true);
+        setWatchLaterId(res._id);
+      } else {
+        await deleteWatchLater(watchLaterId);
+        setIsInWatchLater(false);
+        setWatchLaterId(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar ver más tarde');
+    } finally {
+      setLoadingWatchLater(false);
+    }
+  };
 
   const getYouTubeEmbedUrl = (url) => {
     if (!url || typeof url !== 'string') return null;
@@ -105,12 +141,8 @@ export default function ShowMovie(){
                 <p style={styles.tagline}>{movie.tagline}</p>
               )}
 
-              {/* Info badges */}
-              <div style={styles.badgesContainer}>
-                <div style={styles.badge}>
-                  <AiTwotoneCalendar style={{ marginRight: '6px' }} />
-                  {movie.year}
-                </div>
+              {/* Badges de calificación y género */}
+              <div style={{ display: 'flex', gap: '15px', marginTop: '20px', flexWrap: 'wrap' }}>
                 <div style={styles.badge}>
                   <AiFillStar style={{ marginRight: '6px' }} />
                   {movie.imdb_rating}
@@ -122,17 +154,32 @@ export default function ShowMovie(){
                   </div>
                 )}
               </div>
-
-              {/* Botón de ver trailer */}
-              {embedUrl && (
+              {/* Botones de acción */}
+              <div style={styles.actionButtons}>
+                {embedUrl && (
+                  <button 
+                    style={styles.trailerButton}
+                    onClick={() => setShowTrailer(true)}
+                  >
+                    <AiFillPlayCircle style={{ fontSize: '1.5rem' }} />
+                    <span style={{ marginLeft: '10px', fontSize: '1.1rem' }}>Ver tráiler</span>
+                  </button>
+                )}
+                
                 <button 
-                  style={styles.trailerButton}
-                  onClick={() => setShowTrailer(true)}
+                  style={{
+                    ...styles.watchLaterButton,
+                    ...(isInWatchLater ? styles.watchLaterActive : {})
+                  }}
+                  onClick={toggleWatchLater}
+                  disabled={loadingWatchLater}
                 >
-                  <AiFillPlayCircle style={{ fontSize: '1.5rem' }} />
-                  <span style={{ marginLeft: '10px', fontSize: '1.1rem' }}>Ver tráiler</span>
+                  <div style={styles.plusCircle}>{isInWatchLater ? '✓' : '+'}</div>
+                  <span style={{ marginLeft: '10px', fontSize: '1.1rem' }}>
+                    {isInWatchLater ? 'Añadida' : 'Añadir más tarde'}
+                  </span>
                 </button>
-              )}
+              </div>
             </Col>
           </Row>
         </Container>
@@ -366,6 +413,12 @@ const styles = {
     fontSize: '0.95rem',
     fontWeight: '600',
   },
+  actionButtons: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '16px',
+    alignItems: 'center',
+  },
   trailerButton: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -379,6 +432,35 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+  },
+  watchLaterButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '16px 32px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '12px',
+    
+  watchLaterActive: {
+    background: 'rgba(102, 126, 234, 0.3)',
+    border: '2px solid #667eea',
+  },color: '#ffffff',
+    fontSize: '1rem',
+    fontWeight: '700',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+  },
+  plusCircle: {
+    width: '28px',
+    height: '28px',
+    borderRadius: '50%',
+    background: 'rgba(255, 255, 255, 0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1.5rem',
+    fontWeight: '700',
   },
   detailsContainer: {
     paddingTop: '60px',

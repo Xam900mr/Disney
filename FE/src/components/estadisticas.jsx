@@ -25,6 +25,17 @@ export default function Estadisticas() {
   const [watchedSeries, setWatchedSeries] = useState([]);
 
   useEffect(() => {
+    if (moviesModalOpen || seriesModalOpen) {
+      document.body.style.paddingRight = '0px';
+    } else {
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.paddingRight = '';
+    };
+  }, [moviesModalOpen, seriesModalOpen]);
+
+  useEffect(() => {
     getMyStats()
       .then(data => {
         console.log('Stats received:', data);
@@ -244,65 +255,105 @@ export default function Estadisticas() {
         </Row>
       </Container>
 
+      
       <Modal isOpen={moviesModalOpen} toggle={() => setMoviesModalOpen(false)}>
-        <ModalHeader toggle={() => setMoviesModalOpen(false)}>Películas vistas</ModalHeader>
-        <ModalBody>
+        <ModalHeader toggle={() => setMoviesModalOpen(false)} style={{background:'linear-gradient(135deg, #3a3f55 0%, #1a1d29 100%)', color:'#fff', borderBottom:'1px solid rgba(255,255,255,0.1)'}}>
+          Películas vistas
+        </ModalHeader>
+
+        <ModalBody style={{
+          background: 'linear-gradient(135deg, #5b74d7 0%, #fdfdff 100%)',
+          maxHeight: '75vh',
+          overflowY: 'auto'
+        }}>
           {watchedMovies && watchedMovies.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px'}}>
               {watchedMovies.map((m) => (
-                <div key={m._id} style={{ background: 'rgba(26,31,46,0.85)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div key={m._id} style={{ background: 'rgba(26,31,46,0.85)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s ease', cursor: 'pointer'  
+                }} onClick={() => {
+                  navigate(`/movies/details/${m._id}`);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.15)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                }}>
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <img src={m.portada_url} alt={m.title} style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ color: '#fff', fontWeight: 600 }}>{m.title}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>{m.year} • IMDb {m.imdb_rating}</div>
-                      {Array.isArray(m.genre) && m.genre.length > 0 && (
-                        <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {m.genre.slice(0,3).map((g, idx) => (
-                            <span key={idx} style={{ background: 'rgba(222, 26, 26, 0.1)', color: '#fff', borderRadius: '12px', padding: '2px 8px', fontSize: '0.75rem' }}>{g}</span>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No hay películas vistas registradas.</p>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px', 
+              color: 'rgba(249,249,249,0.6)',
+              fontSize: '1.1rem'
+            }}>
+              No hay peliculas vistas aún
+            </div>
+          )}
+        </ModalBody>
+      </Modal>
+    {/*series modal*/}
+      <Modal isOpen={seriesModalOpen} toggle={() => setSeriesModalOpen(false)}>
+        <ModalHeader toggle={() => setSeriesModalOpen(false)} style={{background:'linear-gradient(135deg, #3a3f55 0%, #1a1d29 100%)', color:'#fff', borderBottom:'1px solid rgba(255,255,255,0.1)'}}>
+          Series vistas
+        </ModalHeader>
+
+        <ModalBody style={{
+          background: 'linear-gradient(135deg, #5b74d7 0%, #fdfdff 100%)',
+          maxHeight: '75vh',
+          overflowY: 'auto'
+        }}>
+          {watchedSeries && watchedSeries.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '16px'}}>
+              {watchedSeries.map((m) => (
+                <div key={m._id} style={{ background: 'rgba(26,31,46,0.85)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s ease', cursor: 'pointer'  
+                }} onClick={() => {
+                  navigate(`/series/details/${m._id}`);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.15)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                }}>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <img src={m.portada_url} alt={m.title} style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: '#fff', fontWeight: 600 }}>{m.title}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '40px', 
+              color: 'rgba(249,249,249,0.6)',
+              fontSize: '1.1rem'
+            }}>
+              No hay series vistas aún
+            </div>
           )}
         </ModalBody>
       </Modal>
 
-      <Modal isOpen={seriesModalOpen} toggle={() => setSeriesModalOpen(false)}>
-        <ModalHeader toggle={() => setSeriesModalOpen(false)}>Series vistas</ModalHeader>
-        <ModalBody>
-          {watchedSeries && watchedSeries.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
-              {watchedSeries.map((m) => (
-                <div key={m._id} style={{ background: 'rgba(26,31,46,0.85)', borderRadius: '12px', padding: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <img src={m.portada_url} alt={m.title} style={{ width: '80px', height: '120px', objectFit: 'cover', borderRadius: '8px' }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: '#fff', fontWeight: 600 }}>{m.title}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>{m.year} • IMDb {m.imdb_rating}</div>
-                      {Array.isArray(m.genre) && m.genre.length > 0 && (
-                        <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {m.genre.slice(0,3).map((g, idx) => (
-                            <span key={idx} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '12px', padding: '2px 8px', fontSize: '0.75rem' }}>{g}</span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No hay series vistas registradas.</p>
-          )}
-        </ModalBody>
-      </Modal>
 
       <style>{`
         @keyframes spin {

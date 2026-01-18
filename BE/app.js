@@ -20,6 +20,7 @@ var characters_seriesRouter = require("./routes/characters_series");
 var characters_moviesRouter = require("./routes/characters_movies");
 var rankingRouter = require("./routes/ranking");
 var viewsRouter = require("./routes/views");
+var watchlaterRouter = require("./routes/watchlater");
 
 
 var app = express();
@@ -65,6 +66,7 @@ app.use("/characters_series", characters_seriesRouter);
 app.use("/characters_movies", characters_moviesRouter);
 app.use("/ranking", rankingRouter); 
 app.use("/views", viewsRouter);
+app.use("/watchlater", watchlaterRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

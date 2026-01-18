@@ -414,7 +414,11 @@ export default function Header() {
                 </DropdownItem>
 
                 <DropdownItem onClick={() => navigate('/stats')} className="header-dropdown-item">
-                  Mi lista
+                  Mis Estadisticas
+                </DropdownItem>
+
+                <DropdownItem onClick={() => navigate('/watch-later')} className="header-dropdown-item">
+                  Ver mas tarde
                 </DropdownItem>
                 
                 <DropdownItem divider />
