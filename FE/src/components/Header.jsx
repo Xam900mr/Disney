@@ -32,7 +32,7 @@ const MIN_SEARCH_LENGTH = 2;
 const NAV_ITEMS = [
   { id: 'movies', label: 'Películas', path: '/movies' },
   { id: 'series', label: 'Series', path: '/series' },
-  { id: 'mi top', label: 'mi top', path: '/trendingSection' }
+  { id: 'mi top', label: 'Mi Top', path: '/trendingSection' }
 ];
 
 const CHARACTER_DROPDOWN = [
