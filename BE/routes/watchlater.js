@@ -63,8 +63,8 @@ router.post('/', tokenVerify, async (req, res) => {
       // Crear registro
       const newWL = await WatchLater.create({
         email,
-        movie: movieId || null,
-        series: seriesId || null
+        movie: movieId || undefined,
+        series: seriesId || undefined
       });
 
       return res.status(201).json(newWL);

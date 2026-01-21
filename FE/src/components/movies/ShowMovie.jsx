@@ -34,11 +34,13 @@ export default function ShowMovie(){
   useEffect(() => {
   // Solo trackear cuando la película esté cargada
     if (movie && movie._id) {
-      trackView('movie', movie._id, 120); // registra 2 minutos para sumar en estadísticas
-      
-      // Verificar si está en watch later
+      // Llamadas que requieren autenticación deben enviarse solo si hay token
       const token = localStorage.getItem('token');
       if (token) {
+        // registra 2 minutos para sumar en estadísticas
+        trackView('movie', movie._id, 120);
+
+        // Verificar si está en "ver más tarde"
         checkWatchLater(movie._id, null)
           .then(res => {
             setIsInWatchLater(res.exists);
@@ -47,6 +49,9 @@ export default function ShowMovie(){
             }
           })
           .catch(err => console.error(err));
+      } else {
+        // Sin sesión, omitimos eventos protegidos
+        // console.debug('No autenticado: se omiten trackView y checkWatchLater');
       }
     }
   }, [movie]);
@@ -55,7 +60,7 @@ export default function ShowMovie(){
     setLoadingWatchLater(true);
     try {
       if (!isInWatchLater) {
-        const res = await addWatchLater(movie._id);
+        const res = await addWatchLater(movie._id, null);
         setIsInWatchLater(true);
         setWatchLaterId(res._id);
       } else {
@@ -142,7 +147,7 @@ export default function ShowMovie(){
               )}
 
               {/* Badges de calificación y género */}
-              <div style={{ display: 'flex', gap: '15px', marginTop: '20px', flexWrap: 'wrap' }}>
+              <div style={styles.badgesContainer}>
                 <div style={styles.badge}>
                   <AiFillStar style={{ marginRight: '6px' }} />
                   {movie.imdb_rating}
@@ -162,7 +167,7 @@ export default function ShowMovie(){
                     onClick={() => setShowTrailer(true)}
                   >
                     <AiFillPlayCircle style={{ fontSize: '1.5rem' }} />
-                    <span style={{ marginLeft: '10px', fontSize: '1.1rem' }}>Ver tráiler</span>
+                    <span style={{ marginLeft: '10px' ,fontSize: '1.1rem' }}>Ver tráiler</span>
                   </button>
                 )}
                 
@@ -173,11 +178,9 @@ export default function ShowMovie(){
                   }}
                   onClick={toggleWatchLater}
                   disabled={loadingWatchLater}
+                  aria-label={isInWatchLater ? 'Añadida a ver más tarde' : 'Añadir a ver más tarde'}
                 >
-                  <div style={styles.plusCircle}>{isInWatchLater ? '✓' : '+'}</div>
-                  <span style={{ marginLeft: '10px', fontSize: '1.1rem' }}>
-                    {isInWatchLater ? 'Añadida' : 'Añadir más tarde'}
-                  </span>
+                  {isInWatchLater ? '✓' : '+'}
                 </button>
               </div>
             </Col>
@@ -333,7 +336,7 @@ const styles = {
   spinner: {
     fontSize: '4rem',
     animation: 'spin 2s linear infinite',
-    marginBottom: '20px',
+    marginBottom: '100px',
   },
   loadingText: {
     color: '#ffffff',
@@ -376,7 +379,7 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    marginBottom: '30px',
+    marginBottom: '80px',
   },
   movieTitle: {
     fontFamily: 'Poppins, sans-serif',
@@ -434,22 +437,24 @@ const styles = {
     boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
   },
   watchLaterButton: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '16px 32px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: 'blur(10px)',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    borderRadius: '12px',
-    
-  watchLaterActive: {
-    background: 'rgba(102, 126, 234, 0.3)',
-    border: '2px solid #667eea',
-  },color: '#ffffff',
-    fontSize: '1rem',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    border: 'none',
+    color: '#ffffff',
+    fontSize: '1.5rem',
     fontWeight: '700',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
+    boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+  },
+  watchLaterActive: {
+    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)',
   },
   plusCircle: {
     width: '28px',

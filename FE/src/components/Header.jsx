@@ -60,7 +60,7 @@ const AVATARS = [
 // UTILITY FUNCTIONS
 // ============================================
 const highlight = (text, query) => {
-  if (!query) return text;
+  if (!text || !query) return text || '';
   const regex = new RegExp(`(${query})`, 'gi');
   return text.split(regex).map((part, i) =>
     part.toLowerCase() === query.toLowerCase()
@@ -171,12 +171,12 @@ const SearchOverlay = ({ show, onClose, query, setQuery, results, loading, activ
             >
               <img
                 src={item.portada_url || '/no-image.png'}
-                alt={item.title}
+                alt={item.title || 'Sin título'}
                 className="header-search-item-image"
               />
               <div className="header-search-item-info">
                 <div className="header-search-item-title">
-                  {highlight(item.title, query)}
+                  {highlight(item.title || 'Sin título', query)}
                 </div>
                 <small className="header-search-item-type">
                   {item.type === 'movie' ? '🎬 Película' : '📺 Serie'}
@@ -404,11 +404,6 @@ export default function Header() {
                 <DropdownItem onClick={() => navigate('/miPerfil')} className="header-dropdown-item">
                   Mi perfil
                 </DropdownItem>
-                {/*
-                <DropdownItem onClick={() => setShowAvatarModal(true)} className="header-dropdown-item">
-                  Cambiar avatar
-                </DropdownItem>
-                */}
                 <DropdownItem onClick={() => navigate('/favorites')} className="header-dropdown-item">
                   Favoritos
                 </DropdownItem>

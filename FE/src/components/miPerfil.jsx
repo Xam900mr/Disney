@@ -174,9 +174,9 @@ export default function Profile() {
     }
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    
+
     if (passwords.newPassword.length < 6) {
       setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
       setTimeout(() => setMessage(null), 3000);
@@ -189,10 +189,39 @@ export default function Profile() {
       return;
     }
 
-    // Aquí iría la llamada a la API para cambiar la contraseña
-    setMessage({ type: 'success', text: '¡Contraseña actualizada correctamente!' });
-    setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    setTimeout(() => setMessage(null), 3000);
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`http://localhost:3000/users/${userId}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword
+        })
+      });
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: '¡Contraseña actualizada correctamente!' });
+        setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else if (response.status === 401) {
+        setMessage({ type: 'error', text: 'Contraseña actual incorrecta' });
+      } else if (response.status === 400) {
+        const data = await response.json();
+        setMessage({ type: 'error', text: data.error || 'Solicitud inválida' });
+      } else {
+        setMessage({ type: 'error', text: 'Error al actualizar la contraseña' });
+      }
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      console.error('Error updating password:', err);
+      setMessage({ type: 'error', text: 'Error de red al actualizar la contraseña' });
+      setTimeout(() => setMessage(null), 3000);
+    }
   };
 
   const handleAccountDeletion = async (e) => {

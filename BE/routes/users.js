@@ -200,5 +200,51 @@ router.put("/:id", tokenVerify,
     }
   });
 
+// Cambiar contraseña de usuario
+router.put('/:id/password', tokenVerify, async function(req, res) {
+  try {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID de usuario inválido' });
+    }
+    if (String(req.userId) !== String(id)) {
+      return res.status(403).json({ error: 'No autorizado para cambiar la contraseña de este usuario' });
+    }
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Contraseña actual y nueva son requeridas' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Verificar contraseña actual
+    const isMatch = await new Promise((resolve, reject) => {
+      user.comparePassword(currentPassword, (err, match) => {
+        if (err) return reject(err);
+        resolve(match);
+      });
+    });
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+    }
+
+    // Asignar y guardar para que el pre('save') hashee
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error('Error changing password:', err);
+    return res.status(500).json({ error: err && err.message ? err.message : 'Internal Server Error' });
+  }
+});
+
 
 module.exports = router;

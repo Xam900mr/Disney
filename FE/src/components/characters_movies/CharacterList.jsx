@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Container, Badge, CardTitle } from "reactstrap";
+import { Row, Col, Container } from "reactstrap";
 import { getAllCharacters_Movies } from "../../utils/apicall.js";
-
 import Header from "../Header.jsx";
 import CardCharacter from "./CardCharacter.jsx";
+import { AiFillStar, AiFillVideoCamera } from "react-icons/ai";
 import MyImgLogin from "../../images/micky.gif";
 import MyImgFondo from "../../images/fondo.gif";
 
@@ -105,7 +105,7 @@ export default function CharacterList() {
             style={{ width: 350, height: "auto" }}
           />
         </Col>
-      </Row>  
+      </Row>
     </div>
   ) : (
     <div style={bgStyle}>
@@ -118,7 +118,14 @@ export default function CharacterList() {
         <Row style={{ marginTop: '30px' }}>
           {currentCharacters.map((character, index) => {
             return (
-              <Col key={character.id || character._id || character.personaje_nombre || index} xs="12" sm="6" md="4" lg="3" className="mb-4 d-flex">
+              <Col 
+                key={character.id || character._id || character.personaje_nombre || index} 
+                xs="12" 
+                sm="6" 
+                md="4" 
+                lg="3" 
+                className="mb-4 d-flex"
+              >
                 <CardCharacter character={character} />
               </Col>
             );

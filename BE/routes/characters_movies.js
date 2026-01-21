@@ -21,7 +21,7 @@ router.get('/search/:query', async (req, res) => {
     const { query } = req.params;
 
     const characters = await Character_Movie.find({
-      name: { $regex: query, $options: 'i' }
+      personaje_nombre: { $regex: query, $options: 'i' }
     }).limit(20);
 
     res.json(characters);
@@ -74,6 +74,27 @@ router.delete('/:id', tokenVerify, function(req, res, next) {
     .catch(function(err) {
       return res.status(500).send(err);
     });
+});
+
+// Buscar película por título
+router.get('/movie/:title', async (req, res) => {
+  try {
+    const { title } = req.params;
+    const character = await Character_Movie.findOne({ pelicula_titulo: title });
+    
+    if (!character) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+    
+    res.json({
+      _id: character.personaje_id || character._id,
+      title: character.pelicula_titulo,
+      year: character.pelicula_ano,
+      poster: character.pelicula_poster
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 

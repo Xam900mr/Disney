@@ -21,6 +21,7 @@ var characters_moviesRouter = require("./routes/characters_movies");
 var rankingRouter = require("./routes/ranking");
 var viewsRouter = require("./routes/views");
 var watchlaterRouter = require("./routes/watchlater");
+var WatchLater = require('./models/WatchLater');
 
 
 var app = express();
@@ -45,6 +46,26 @@ mongoose
   .connect(fullURI)
   .then(() => debug("MongoDB Atlas DataBase connection successful"))
   .catch(err => console.error("Error conectando a MongoDB:", err));
+
+// Ensure indexes for WatchLater with updated options
+mongoose.connection.on('open', async () => {
+  try {
+    // Drop legacy indexes if present to allow recreating with partial filters
+    const coll = mongoose.connection.collection('watchlater');
+    const indexes = await coll.indexes();
+    const indexNames = indexes.map(i => i.name);
+    if (indexNames.includes('email_1_movie_1')) {
+      try { await coll.dropIndex('email_1_movie_1'); } catch (_) {}
+    }
+    if (indexNames.includes('email_1_series_1')) {
+      try { await coll.dropIndex('email_1_series_1'); } catch (_) {}
+    }
+    await WatchLater.syncIndexes();
+    debug('WatchLater indexes synchronized');
+  } catch (e) {
+    console.error('Failed to sync WatchLater indexes:', e.message);
+  }
+});
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

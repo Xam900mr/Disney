@@ -164,17 +164,19 @@ const styles = {
   rankImg: {
     width: '100%',
     height: '100%',
-    objectFit: 'contain',
+    objectFit: 'cover',
     objectPosition: 'center',
     display: 'block',
-    filter: 'saturate(1.05) contrast(1.05)',
-    background: 'rgba(255,255,255,0.22)'
+    filter: 'saturate(1.1) contrast(1.08) brightness(1.02)',
+    transform: 'scale(1.02)',
+    background: 'rgba(255,255,255,0.18)'
   },
 
   rankOverlay: {
     position: 'absolute',
     inset: 0,
-    background: 'linear-gradient(90deg,rgb(0, 0, 0) 0%, rgba(15,20,25,0.1) 55%, rgba(0,0,0) 100%)',
+    background: 'linear-gradient(90deg, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.80) 100%)',
+    backdropFilter: 'blur(2px)'
   },
   rankName: {
     left: '20px',
