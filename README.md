@@ -38,42 +38,6 @@ El servidor fue desarrollado utilizando **Node.js**, encargado de procesar las s
 
 ---
 
-## 🏗️ Arquitectura
-
-El proyecto utiliza una arquitectura donde diferentes componentes trabajan conjuntamente:
-
-```text
-                 ┌──────────────────┐
-                 │      Usuario     │
-                 └────────┬─────────┘
-                          │
-                          ▼
-                 ┌──────────────────┐
-                 │     React        │
-                 │    Frontend      │
-                 └────────┬─────────┘
-                          │
-                       HTTP/API
-                          │
-                          ▼
-                 ┌──────────────────┐
-                 │     Node.js      │
-                 │     Backend      │
-                 └────────┬─────────┘
-                          │
-                 ┌────────┴─────────┐
-                 ▼                  ▼
-        ┌─────────────────┐  ┌───────────────┐
-        │    MongoDB      │  │ Servicios/API │
-        │    Base de      │  │    externos   │
-        │     datos       │  │               │
-        └─────────────────┘  └───────────────┘
-```
-
-Esta estructura permite mantener separadas las responsabilidades del frontend, backend y almacenamiento de información.
-
----
-
 ## 🛠️ Tecnologías utilizadas
 
 ### Frontend
@@ -103,25 +67,6 @@ Esta estructura permite mantener separadas las responsabilidades del frontend, b
 * npm
 
 ---
-
-## 📂 Estructura del proyecto
-
-```text
-Disney/
-│
-├── frontend/
-│   └── Aplicación React
-│
-├── backend/
-│   └── Servidor Node.js
-│
-├── api/
-│   └── Endpoints y lógica de la API
-│
-├── ...
-│
-└── README.md
-```
 
 > La estructura anterior es representativa. Consulta las carpetas del proyecto para conocer la organización específica de cada componente.
 
